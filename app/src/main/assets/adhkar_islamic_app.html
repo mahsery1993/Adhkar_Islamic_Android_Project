@@ -142,7 +142,7 @@
             <!-- VIEW 1: ADHKAR LIST (Morning / Evening / Jawami) -->
             <section id="viewAdhkar" class="space-y-4">
                 
-                <!-- Sub-category Segmented Tabs (6 Categories) -->
+                <!-- Sub-category Segmented Tabs (7 Categories + Add Dhikr) -->
                 <div class="grid grid-cols-3 gap-1.5 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-2xl">
                     <button data-cat="morning" class="cat-tab-btn py-2 px-2 rounded-xl text-xs sm:text-sm font-bold transition bg-emerald-700 text-white shadow">
                         ☀️ أذكار الصباح
@@ -162,6 +162,52 @@
                     <button data-cat="ruqyah" class="cat-tab-btn py-2 px-2 rounded-xl text-xs sm:text-sm font-bold transition text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700/50">
                         🛡️ الرقية الشرعية
                     </button>
+                    <button data-cat="custom" class="cat-tab-btn col-span-2 py-2 px-2 rounded-xl text-xs sm:text-sm font-bold transition text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700/50">
+                        📿 أذكاري الخاصة
+                    </button>
+                    <button id="openAddDhikrBtn" type="button" class="py-2 px-2 rounded-xl text-xs sm:text-sm font-bold transition bg-amber-500 hover:bg-amber-400 text-slate-950 shadow flex items-center justify-center gap-1">
+                        <span>➕</span>
+                        <span>إضافة ذكر</span>
+                    </button>
+                </div>
+
+                <!-- Collapsible Add Custom Dhikr Form -->
+                <div id="addDhikrPanel" class="hidden bg-emerald-50/90 dark:bg-slate-800/95 border-2 border-emerald-500/40 rounded-2xl p-4 space-y-3 shadow-md">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-extrabold text-emerald-900 dark:text-emerald-300">➕ إضافة ذكر أو دعاء جديد للتطبيق</h3>
+                        <button id="closeAddDhikrBtn" type="button" class="text-xs text-slate-500 hover:text-red-500 font-bold px-2 py-0.5 rounded-lg">إغلاق ✕</button>
+                    </div>
+                    <div class="space-y-2.5 text-xs">
+                        <div>
+                            <label for="newDhikrText" class="block font-bold text-slate-700 dark:text-slate-200 mb-1">نص الذكر أو الدعاء:</label>
+                            <textarea id="newDhikrText" rows="3" placeholder="اكتب الذكر أو الدعاء هنا..." class="w-full rounded-xl p-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:border-emerald-500"></textarea>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div>
+                                <label for="newDhikrCategory" class="block font-bold text-slate-700 dark:text-slate-200 mb-1">القسم:</label>
+                                <select id="newDhikrCategory" class="w-full rounded-xl p-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 font-bold focus:outline-none focus:border-emerald-500">
+                                    <option value="custom">📿 أذكاري الخاصة</option>
+                                    <option value="morning">☀️ أذكار الصباح</option>
+                                    <option value="evening">🌙 أذكار المساء</option>
+                                    <option value="jawami">✨ جوامع الأذكار</option>
+                                    <option value="prayer">🕌 بعد الصلاة</option>
+                                    <option value="sleep">🛌 أذكار النوم</option>
+                                    <option value="ruqyah">🛡️ الرقية الشرعية</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="newDhikrTarget" class="block font-bold text-slate-700 dark:text-slate-200 mb-1">عدد التكرار المطلوب:</label>
+                                <input id="newDhikrTarget" type="number" min="1" max="10000" value="3" class="w-full rounded-xl p-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 font-bold text-center focus:outline-none focus:border-emerald-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="newDhikrReward" class="block font-bold text-slate-700 dark:text-slate-200 mb-1">الفضل أو الملاحظة (اختياري):</label>
+                            <input id="newDhikrReward" type="text" placeholder="مثال: دعاء مأثور / ورد يومي خاص..." class="w-full rounded-xl p-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <button id="saveNewDhikrBtn" type="button" class="w-full py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-sm shadow transition">
+                            حفظ الذكر في التطبيق
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Search & Filter Bar -->
@@ -199,7 +245,15 @@
                 </div>
 
                 <!-- Phrase Selector -->
-                <div id="tasbihPhrasesList" class="flex flex-wrap justify-center gap-2 pb-2"></div>
+                <div id="tasbihPhrasesList" class="flex flex-wrap justify-center gap-2 pb-1"></div>
+
+                <!-- Add Custom Phrase to Tasbih -->
+                <div class="flex items-center gap-2 max-w-sm mx-auto">
+                    <input id="customTasbihInput" type="text" placeholder="أضف تسبيحة أو ذكراً خاصاً للمسبحة..." class="flex-1 bg-slate-100 dark:bg-slate-800/90 text-xs rounded-xl px-3 py-2 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-emerald-500">
+                    <button id="addCustomTasbihBtn" type="button" class="px-3 py-2 rounded-xl text-xs font-bold bg-emerald-700 hover:bg-emerald-600 text-white shrink-0 transition">
+                        + إضافة للمسبحة
+                    </button>
+                </div>
 
                 <!-- Main Circular Counter -->
                 <div class="flex flex-col items-center justify-center py-4">
@@ -293,6 +347,10 @@
                             <span class="font-bold">🛡️ الرقية الشرعية من القرآن والسنة</span>
                             <input type="checkbox" id="chkCatRuqyah" checked class="w-4 h-4 accent-emerald-600 rounded">
                         </label>
+                        <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 cursor-pointer">
+                            <span class="font-bold">📿 أذكاري الخاصة</span>
+                            <input type="checkbox" id="chkCatCustom" checked class="w-4 h-4 accent-emerald-600 rounded">
+                        </label>
                     </div>
                 </div>
 
@@ -374,9 +432,25 @@
                 id: 'm2',
                 category: 'morning',
                 categoryLabel: 'أذكار الصباح',
-                text: 'قراءة سورة الإخلاص: ﴿قُلْ هُوَ اللَّهُ أَحَدٌ * اللَّهُ الصَّمَدُ * لَمْ يَلِدْ وَلَمْ يُولَدْ * وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ﴾، وسورة الفلق: ﴿قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ * مِن شَرِّ مَا خَلَقَ * وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ * وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ * وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ﴾، وسورة الناس: ﴿قُلْ أَعُوذُ بِرَبِّ النَّاسِ * مَلِكِ النَّاسِ * إِلَٰهِ النَّاسِ * مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ * الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ * مِنَ الْجِنَّةِ وَالنَّاسِ﴾.',
+                text: 'سورة الإخلاص: ﴿بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ * قُلْ هُوَ اللَّهُ أَحَدٌ * اللَّهُ الصَّمَدُ * لَمْ يَلِدْ وَلَمْ يُولَدْ * وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ﴾.',
                 target: 3,
-                reward: 'من قالها ثلاث مرات حين يصبح وحين يمسي كفته من كل شيء.'
+                reward: 'تُقرأ ثلاث مرات صباحاً؛ من قالها مع المعوذتين حين يصبح كفته من كل شيء.'
+            },
+            {
+                id: 'm2_falaq',
+                category: 'morning',
+                categoryLabel: 'أذكار الصباح',
+                text: 'سورة الفلق: ﴿بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ * قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ * مِن شَرِّ مَا خَلَقَ * وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ * وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ * وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ﴾.',
+                target: 3,
+                reward: 'تُقرأ ثلاث مرات صباحاً للحفظ والتحصين من كل شر.'
+            },
+            {
+                id: 'm2_nas',
+                category: 'morning',
+                categoryLabel: 'أذكار الصباح',
+                text: 'سورة الناس: ﴿بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ * قُلْ أَعُوذُ بِرَبِّ النَّاسِ * مَلِكِ النَّاسِ * إِلَٰهِ النَّاسِ * مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ * الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ * مِنَ الْجِنَّةِ وَالنَّاسِ﴾.',
+                target: 3,
+                reward: 'تُقرأ ثلاث مرات صباحاً للاستعاذة من شر الوسواس الخناس.'
             },
             {
                 id: 'm3',
@@ -506,9 +580,25 @@
                 id: 'e2',
                 category: 'evening',
                 categoryLabel: 'أذكار المساء',
-                text: 'قراءة سورة الإخلاص: ﴿قُلْ هُوَ اللَّهُ أَحَدٌ * اللَّهُ الصَّمَدُ * لَمْ يَلِدْ وَلَمْ يُولَدْ * وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ﴾، وسورة الفلق: ﴿قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ * مِن شَرِّ مَا خَلَقَ * وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ * وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ * وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ﴾، وسورة الناس: ﴿قُلْ أَعُوذُ بِرَبِّ النَّاسِ * مَلِكِ النَّاسِ * إِلَٰهِ النَّاسِ * مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ * الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ * مِنَ الْجِنَّةِ وَالنَّاسِ﴾.',
+                text: 'سورة الإخلاص: ﴿بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ * قُلْ هُوَ اللَّهُ أَحَدٌ * اللَّهُ الصَّمَدُ * لَمْ يَلِدْ وَلَمْ يُولَدْ * وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ﴾.',
                 target: 3,
-                reward: 'من قالها ثلاث مرات حين يمسي كفته من كل شيء.'
+                reward: 'تُقرأ ثلاث مرات مساءً؛ من قالها مع المعوذتين حين يمسي كفته من كل شيء.'
+            },
+            {
+                id: 'e2_falaq',
+                category: 'evening',
+                categoryLabel: 'أذكار المساء',
+                text: 'سورة الفلق: ﴿بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ * قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ * مِن شَرِّ مَا خَلَقَ * وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ * وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ * وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ﴾.',
+                target: 3,
+                reward: 'تُقرأ ثلاث مرات مساءً للحفظ والتحصين في الليل.'
+            },
+            {
+                id: 'e2_nas',
+                category: 'evening',
+                categoryLabel: 'أذكار المساء',
+                text: 'سورة الناس: ﴿بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ * قُلْ أَعُوذُ بِرَبِّ النَّاسِ * مَلِكِ النَّاسِ * إِلَٰهِ النَّاسِ * مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ * الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ * مِنَ الْجِنَّةِ وَالنَّاسِ﴾.',
+                target: 3,
+                reward: 'تُقرأ ثلاث مرات مساءً للاستعاذة من شر الوسواس الخناس.'
             },
             {
                 id: 'e3',
@@ -886,9 +976,25 @@
                 id: 's8',
                 category: 'sleep',
                 categoryLabel: 'أذكار النوم',
-                text: 'سُبْحَانَ اللَّهِ (33)، وَالْحَمْدُ لِلَّهِ (33)، وَاللَّهُ أَكْبَرُ (34).',
+                text: 'سُبْحَانَ اللَّهِ (ثَلَاثًا وَثَلَاثِينَ مَرَّةً عِنْدَ النَّوْمِ).',
                 target: 33,
-                reward: 'وصية النبي ﷺ لعلي وفاطمة رضي الله عنهما عند النوم: خير لكما من خادم.'
+                reward: 'التسبيح عند النوم من وصية النبي ﷺ لعلي وفاطمة رضي الله عنهما.'
+            },
+            {
+                id: 's8_hamd',
+                category: 'sleep',
+                categoryLabel: 'أذكار النوم',
+                text: 'الْحَمْدُ لِلَّهِ (ثَلَاثًا وَثَلَاثِينَ مَرَّةً عِنْدَ النَّوْمِ).',
+                target: 33,
+                reward: 'التحميد عند النوم من وصية النبي ﷺ لعلي وفاطمة رضي الله عنهما.'
+            },
+            {
+                id: 's8_takbir',
+                category: 'sleep',
+                categoryLabel: 'أذكار النوم',
+                text: 'اللَّهُ أَكْبَرُ (أَرْبَعًا وَثَلَاثِينَ مَرَّةً عِنْدَ النَّوْمِ).',
+                target: 34,
+                reward: 'التكبير أربعاً وثلاثين عند النوم: خير لكما من خادم.'
             },
             {
                 id: 's9',
@@ -946,9 +1052,33 @@
                 id: 'r3',
                 category: 'ruqyah',
                 categoryLabel: 'الرقية الشرعية',
-                text: 'قراءة المعوذات: ﴿قُلْ هُوَ اللَّهُ أَحَدٌ﴾، و﴿قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ﴾، و﴿قُلْ أَعُوذُ بِرَبِّ النَّاسِ﴾.',
+                text: 'سورة الإخلاص: ﴿بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ * قُلْ هُوَ اللَّهُ أَحَدٌ * اللَّهُ الصَّمَدُ * لَمْ يَلِدْ وَلَمْ يُولَدْ * وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ﴾.',
                 target: 3,
-                reward: 'ما تعوّذ متعوّذ بمثلهن، وتكفيك من كل شيء.'
+                reward: 'من المعوذات في الرقية الشرعية، تقرأ ثلاث مرات.'
+            },
+            {
+                id: 'r3_falaq',
+                category: 'ruqyah',
+                categoryLabel: 'الرقية الشرعية',
+                text: 'سورة الفلق: ﴿بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ * قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ * مِن شَرِّ مَا خَلَقَ * وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ * وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ * وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ﴾.',
+                target: 3,
+                reward: 'ما تعوّذ متعوّذ بمثلهن للتحصين من الحسد والسحر وكل شر.'
+            },
+            {
+                id: 'r3_nas',
+                category: 'ruqyah',
+                categoryLabel: 'الرقية الشرعية',
+                text: 'سورة الناس: ﴿بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ * قُلْ أَعُوذُ بِرَبِّ النَّاسِ * مَلِكِ النَّاسِ * إِلَٰهِ النَّاسِ * مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ * الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ * مِنَ الْجِنَّةِ وَالنَّاسِ﴾.',
+                target: 3,
+                reward: 'رقية شرعية وتحصين من شياطين الإنس والجن.'
+            },
+            {
+                id: 'c_default_1',
+                category: 'custom',
+                categoryLabel: 'أذكاري الخاصة',
+                text: 'اللَّهُمَّ اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ وَالْمُؤْمِنَاتِ الْأَحْيَاءِ مِنْهُمْ وَالْأَمْوَاتِ.',
+                target: 3,
+                reward: 'دعاء خاص — يمكنك إضافة أذكارك وأدعيتك الخاصة من زر (➕ إضافة ذكر) أعلاه.'
             },
             {
                 id: 'r4',
@@ -1020,6 +1150,21 @@
             } catch (e) {}
         }
 
+        // Load Custom User Adhkar & Custom Tasbih Phrases
+        const customAdhkarList = loadStorage('adhkar_custom_items_v1', []);
+        customAdhkarList.forEach(item => {
+            if (!ADHKAR_DATA.some(x => x.id === item.id)) {
+                ADHKAR_DATA.push(item);
+            }
+        });
+
+        const customTasbihList = loadStorage('adhkar_custom_tasbih_v1', []);
+        customTasbihList.forEach(phrase => {
+            if (!TASBIH_PHRASES.includes(phrase)) {
+                TASBIH_PHRASES.push(phrase);
+            }
+        });
+
         // Application State
         const state = {
             currentCategory: 'morning',
@@ -1028,6 +1173,7 @@
             counts: loadStorage('adhkar_counts_v1', {}),
             favorites: loadStorage('adhkar_favs_v1', {}),
             totalTasbih: loadStorage('adhkar_total_tasbih_v1', 0),
+            tasbihPhraseCounts: loadStorage('adhkar_tasbih_phrase_counts_v1', {}),
             tasbihPhraseIdx: 0,
             tasbihCurrent: 0,
             tasbihTargets: [33, 100, 0],
@@ -1041,6 +1187,7 @@
                 catPrayer: true,
                 catSleep: true,
                 catRuqyah: true,
+                catCustom: true,
                 morningTime: '06:00',
                 eveningTime: '17:30',
                 sound: true,
@@ -1146,6 +1293,7 @@
                                 ${isDone ? '✓ مكتمل' : `التكرار المطلوب: ${item.target}`}
                             </span>
                             <div class="flex items-center gap-1.5">
+                                ${item.isUserAdded ? `<button data-del="${item.id}" class="del-btn p-1.5 rounded-lg text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 font-bold" title="حذف الذكر">حذف</button>` : ''}
                                 <button data-fav="${item.id}" class="fav-btn p-1.5 rounded-lg text-sm ${
                                     isFav ? 'text-amber-500' : 'text-slate-400 hover:text-amber-400'
                                 }" title="إضافة للمفضلة">★</button>
@@ -1200,7 +1348,8 @@
                 jawami: 'تقدم جوامع الأذكار',
                 prayer: 'تقدم أذكار بعد الصلاة',
                 sleep: 'تقدم أذكار النوم',
-                ruqyah: 'تقدم الرقية الشرعية'
+                ruqyah: 'تقدم الرقية الشرعية',
+                custom: 'تقدم أذكاري الخاصة'
             };
             document.getElementById('currentCatTitle').textContent = catNames[state.currentCategory];
             document.getElementById('currentCatPercent').textContent = `${pct}% (${catDone}/${catItems.length})`;
@@ -1217,14 +1366,12 @@
                 const cur = state.counts[id] || 0;
                 if (cur < item.target) {
                     state.counts[id] = cur + 1;
-                    state.totalTasbih += 1;
                     playChime('tap');
                     if (navigator.vibrate) navigator.vibrate(25);
                     if (state.counts[id] === item.target) {
                         showToast('تقبل الله! اكتمل تكرار هذا الذكر');
                     }
                     saveStorage('adhkar_counts_v1', state.counts);
-                    saveStorage('adhkar_total_tasbih_v1', state.totalTasbih);
                     renderAdhkar();
                 } else {
                     showToast('اكتمل عدد هذا الذكر بالفعل');
@@ -1267,22 +1414,102 @@
                         showToast('تم نسخ الذكر');
                     }
                 }
+                return;
+            }
+
+            const delBtn = e.target.closest('.del-btn');
+            if (delBtn) {
+                const id = delBtn.getAttribute('data-del');
+                const idx = ADHKAR_DATA.findIndex(i => i.id === id);
+                if (idx !== -1) {
+                    ADHKAR_DATA.splice(idx, 1);
+                    const savedCustom = loadStorage('adhkar_custom_items_v1', []).filter(i => i.id !== id);
+                    saveStorage('adhkar_custom_items_v1', savedCustom);
+                    delete state.counts[id];
+                    saveStorage('adhkar_counts_v1', state.counts);
+                    renderAdhkar();
+                    showToast('تم حذف الذكر المخصص');
+                }
             }
         });
+
+        function updateCategoryTabStyles() {
+            document.querySelectorAll('.cat-tab-btn').forEach(b => {
+                const cat = b.getAttribute('data-cat');
+                const spanClass = cat === 'custom' ? 'col-span-2 ' : '';
+                if (cat === state.currentCategory) {
+                    b.className = `cat-tab-btn ${spanClass}py-2 px-2 rounded-xl text-xs sm:text-sm font-bold transition bg-emerald-700 text-white shadow`;
+                } else {
+                    b.className = `cat-tab-btn ${spanClass}py-2 px-2 rounded-xl text-xs sm:text-sm font-bold transition text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700/50`;
+                }
+            });
+        }
 
         // Category Switching
         document.querySelectorAll('.cat-tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 state.currentCategory = btn.getAttribute('data-cat');
-                document.querySelectorAll('.cat-tab-btn').forEach(b => {
-                    if (b.getAttribute('data-cat') === state.currentCategory) {
-                        b.className = 'cat-tab-btn py-2 px-2 rounded-xl text-xs sm:text-sm font-bold transition bg-emerald-700 text-white shadow';
-                    } else {
-                        b.className = 'cat-tab-btn py-2 px-2 rounded-xl text-xs sm:text-sm font-bold transition text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700/50';
-                    }
-                });
+                updateCategoryTabStyles();
                 renderAdhkar();
             });
+        });
+
+        // Add Custom Dhikr Modal/Panel Handlers
+        const addDhikrPanel = document.getElementById('addDhikrPanel');
+        document.getElementById('openAddDhikrBtn').addEventListener('click', () => {
+            addDhikrPanel.classList.toggle('hidden');
+            if (!addDhikrPanel.classList.contains('hidden')) {
+                document.getElementById('newDhikrText').focus();
+            }
+        });
+        document.getElementById('closeAddDhikrBtn').addEventListener('click', () => {
+            addDhikrPanel.classList.add('hidden');
+        });
+        document.getElementById('saveNewDhikrBtn').addEventListener('click', () => {
+            const textVal = document.getElementById('newDhikrText').value.trim();
+            const catVal = document.getElementById('newDhikrCategory').value;
+            const targetVal = Math.max(1, parseInt(document.getElementById('newDhikrTarget').value, 10) || 1);
+            const rewardVal = document.getElementById('newDhikrReward').value.trim() || 'ذكر مضاف في أذكاري الخاصة';
+
+            if (!textVal) {
+                showToast('يرجى كتابة نص الذكر أو الدعاء أولاً');
+                return;
+            }
+
+            const catLabels = {
+                custom: 'أذكاري الخاصة',
+                morning: 'أذكار الصباح',
+                evening: 'أذكار المساء',
+                jawami: 'جوامع الأذكار',
+                prayer: 'أذكار بعد الصلاة',
+                sleep: 'أذكار النوم',
+                ruqyah: 'الرقية الشرعية'
+            };
+
+            const newItem = {
+                id: 'user_' + Date.now(),
+                category: catVal,
+                categoryLabel: catLabels[catVal] || 'أذكاري الخاصة',
+                text: textVal,
+                target: targetVal,
+                reward: rewardVal,
+                isUserAdded: true
+            };
+
+            ADHKAR_DATA.unshift(newItem);
+            const savedCustom = loadStorage('adhkar_custom_items_v1', []);
+            savedCustom.unshift(newItem);
+            saveStorage('adhkar_custom_items_v1', savedCustom);
+
+            // Clear inputs & switch to that category to show the newly added dhikr
+            document.getElementById('newDhikrText').value = '';
+            document.getElementById('newDhikrReward').value = '';
+            addDhikrPanel.classList.add('hidden');
+
+            state.currentCategory = catVal;
+            updateCategoryTabStyles();
+            renderAdhkar();
+            showToast('تم حفظ الذكر وإضافته بنجاح!');
         });
 
         // Search & Favorites Filter
@@ -1309,22 +1536,23 @@
             showToast('تم تصفير عدادات اليوم بنجاح');
         });
 
-        // Electronic Tasbih View Logic
+        // Electronic Tasbih View Logic (Each phrase has its own independent counter)
         function renderTasbihPhrases() {
             const list = document.getElementById('tasbihPhrasesList');
             list.innerHTML = '';
             TASBIH_PHRASES.forEach((phrase, idx) => {
                 const btn = document.createElement('button');
                 const active = idx === state.tasbihPhraseIdx;
-                btn.className = `shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition ${
+                const pCount = state.tasbihPhraseCounts[phrase] || 0;
+                btn.className = `shrink-0 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
                     active
                         ? 'bg-emerald-700 text-white shadow'
                         : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                 }`;
-                btn.textContent = phrase;
+                btn.innerHTML = `<span>${phrase}</span><span class="px-1.5 py-0.2 rounded-full text-[10px] font-mono ${active ? 'bg-black/25 text-amber-300' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}">${pCount}</span>`;
                 btn.addEventListener('click', () => {
                     state.tasbihPhraseIdx = idx;
-                    state.tasbihCurrent = 0;
+                    state.tasbihCurrent = state.tasbihPhraseCounts[phrase] || 0;
                     updateTasbihUI();
                     renderTasbihPhrases();
                 });
@@ -1333,32 +1561,62 @@
         }
 
         function updateTasbihUI() {
-            document.getElementById('activeTasbihPhrase').textContent = TASBIH_PHRASES[state.tasbihPhraseIdx];
+            const currentPhrase = TASBIH_PHRASES[state.tasbihPhraseIdx];
+            state.tasbihCurrent = state.tasbihPhraseCounts[currentPhrase] || 0;
+            document.getElementById('activeTasbihPhrase').textContent = currentPhrase;
             document.getElementById('tasbihMainCounter').textContent = state.tasbihCurrent;
             const target = state.tasbihTargets[state.tasbihTargetIdx];
             document.getElementById('tasbihTargetLabel').textContent = target === 0 ? 'الهدف: مفتوح' : `الهدف: ${target}`;
         }
 
         document.getElementById('tasbihTapBtn').addEventListener('click', () => {
-            state.tasbihCurrent += 1;
+            const currentPhrase = TASBIH_PHRASES[state.tasbihPhraseIdx];
+            state.tasbihPhraseCounts[currentPhrase] = (state.tasbihPhraseCounts[currentPhrase] || 0) + 1;
+            state.tasbihCurrent = state.tasbihPhraseCounts[currentPhrase];
             state.totalTasbih += 1;
+            saveStorage('adhkar_tasbih_phrase_counts_v1', state.tasbihPhraseCounts);
             saveStorage('adhkar_total_tasbih_v1', state.totalTasbih);
             playChime('tap');
             if (navigator.vibrate) navigator.vibrate(20);
 
             const target = state.tasbihTargets[state.tasbihTargetIdx];
             if (target > 0 && state.tasbihCurrent === target) {
-                showToast(`ما شاء الله! أتممت ${target} تسبيحة`);
+                showToast(`ما شاء الله! أتممت ${target} من (${currentPhrase})`);
                 if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
             }
             updateTasbihUI();
+            renderTasbihPhrases();
             updateProgressStats();
         });
 
         document.getElementById('tasbihResetBtn').addEventListener('click', () => {
+            const currentPhrase = TASBIH_PHRASES[state.tasbihPhraseIdx];
+            state.tasbihPhraseCounts[currentPhrase] = 0;
             state.tasbihCurrent = 0;
+            saveStorage('adhkar_tasbih_phrase_counts_v1', state.tasbihPhraseCounts);
             updateTasbihUI();
-            showToast('تم تصفير عداد المسبحة');
+            renderTasbihPhrases();
+            showToast('تم تصفير عداد هذا التسبيح');
+        });
+
+        document.getElementById('addCustomTasbihBtn').addEventListener('click', () => {
+            const inp = document.getElementById('customTasbihInput');
+            const val = inp.value.trim();
+            if (!val) {
+                showToast('اكتب الذكر أو التسبيحة أولاً');
+                return;
+            }
+            if (!TASBIH_PHRASES.includes(val)) {
+                TASBIH_PHRASES.push(val);
+                const saved = loadStorage('adhkar_custom_tasbih_v1', []);
+                saved.push(val);
+                saveStorage('adhkar_custom_tasbih_v1', saved);
+            }
+            state.tasbihPhraseIdx = TASBIH_PHRASES.indexOf(val);
+            inp.value = '';
+            updateTasbihUI();
+            renderTasbihPhrases();
+            showToast('تمت إضافة التسبيحة إلى المسبحة!');
         });
 
         document.getElementById('tasbihTargetCycleBtn').addEventListener('click', () => {
@@ -1375,6 +1633,7 @@
             if (state.settings.catPrayer) allowedCats.push('prayer');
             if (state.settings.catSleep) allowedCats.push('sleep');
             if (state.settings.catRuqyah) allowedCats.push('ruqyah');
+            if (state.settings.catCustom !== false) allowedCats.push('custom');
             if (allowedCats.length === 0) allowedCats.push('jawami');
 
             const pool = ADHKAR_DATA.filter(item => allowedCats.includes(item.category));
@@ -1420,9 +1679,7 @@
             if (state.currentPopupDhikr) {
                 const id = state.currentPopupDhikr.id;
                 state.counts[id] = (state.counts[id] || 0) + 1;
-                state.totalTasbih += 1;
                 saveStorage('adhkar_counts_v1', state.counts);
-                saveStorage('adhkar_total_tasbih_v1', state.totalTasbih);
                 renderAdhkar();
             }
             document.getElementById('headsUpBanner').classList.add('hidden');
@@ -1485,6 +1742,7 @@
             document.getElementById('chkCatPrayer').checked = state.settings.catPrayer !== false;
             document.getElementById('chkCatSleep').checked = state.settings.catSleep !== false;
             document.getElementById('chkCatRuqyah').checked = state.settings.catRuqyah !== false;
+            document.getElementById('chkCatCustom').checked = state.settings.catCustom !== false;
             document.getElementById('morningAlarmTime').value = state.settings.morningTime;
             document.getElementById('eveningAlarmTime').value = state.settings.eveningTime;
             document.getElementById('soundToggleChk').checked = state.settings.sound;
@@ -1555,7 +1813,7 @@
             showToast(state.settings.enabled ? 'تم تفعيل الإشعارات التذكيرية' : 'تم إيقاف الإشعارات مؤقتاً');
         });
 
-        ['chkCatMorning', 'chkCatEvening', 'chkCatJawami', 'chkCatPrayer', 'chkCatSleep', 'chkCatRuqyah'].forEach(id => {
+        ['chkCatMorning', 'chkCatEvening', 'chkCatJawami', 'chkCatPrayer', 'chkCatSleep', 'chkCatRuqyah', 'chkCatCustom'].forEach(id => {
             document.getElementById(id).addEventListener('change', () => {
                 state.settings.catMorning = document.getElementById('chkCatMorning').checked;
                 state.settings.catEvening = document.getElementById('chkCatEvening').checked;
@@ -1563,6 +1821,7 @@
                 state.settings.catPrayer = document.getElementById('chkCatPrayer').checked;
                 state.settings.catSleep = document.getElementById('chkCatSleep').checked;
                 state.settings.catRuqyah = document.getElementById('chkCatRuqyah').checked;
+                state.settings.catCustom = document.getElementById('chkCatCustom').checked;
                 saveStorage('adhkar_settings_v1', state.settings);
                 syncWithNativeAndroid();
             });
