@@ -39,7 +39,7 @@ object NotificationHelper {
         )
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_popup_reminder)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("زاد الذاكرين • ${dhikr.categoryTitle}")
             .setContentText(dhikr.text)
             .setStyle(
