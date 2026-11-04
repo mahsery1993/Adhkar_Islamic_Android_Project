@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android APK and Play Store AAB
 
 on:
   push:
@@ -17,16 +17,38 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Generate Release Keystore
+        run: |
+          if [ ! -f app/release-key.jks ]; then
+            keytool -genkeypair -v \
+              -keystore app/release-key.jks \
+              -alias zad_key \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -storepass "ZadAdhkar2026!" \
+              -keypass "ZadAdhkar2026!" \
+              -dname "CN=Zad AlDhakireen, OU=Islamic Apps, O=ZadAlDhakireen, L=Amman, S=Amman, C=JO"
+          fi
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: '8.5'
 
-      - name: Build Debug APK
-        run: gradle assembleDebug
+      - name: Build Debug APK & Signed Release AAB
+        run: gradle assembleDebug bundleRelease
 
-      - name: Upload APK Artifact
+      - name: Upload APK (For Direct Phone Install)
         uses: actions/upload-artifact@v4
         with:
           name: ZadAlDhakireen-APK
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload Signed AAB & Keystore (For Google Play Store)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZadAlDhakireen-PlayStore-AAB-Bundle
+          path: |
+            app/build/outputs/bundle/release/app-release.aab
+            app/release-key.jks
