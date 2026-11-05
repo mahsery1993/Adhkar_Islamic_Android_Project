@@ -26,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // ضبط ألوان شريط الحالة العلوي وشريط التنقل السفلي لمنع التداخل
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.statusBarColor = Color.parseColor("#064E3B")
@@ -55,15 +56,69 @@ class MainActivity : AppCompatActivity() {
         webView.webChromeClient = WebChromeClient()
         webView.addJavascriptInterface(AndroidBridge(this), "AndroidBridge")
 
+        // تحميل التصميم الاحترافي الكامل من مجلد assets
         webView.loadUrl("file:///android_asset/adhkar_islamic_app.html")
+
+        // تفعيل الجدولة الافتراضية في الخلفية عند أول تشغيل
+        val prefs = getSharedPreferences("adhkar_prefs", Context.MODE_PRIVATE)
+        if (prefs.getBoolean("reminders_enabled", true)) {
+            val savedMin = prefs.getInt("interval_minutes", 30)
+            DhikrAlarmReceiver.scheduleNextReminder(this, savedMin)
+        }
+    }
+
+    inner class AndroidBridge(private val context: Context) {
+
+        @JavascriptInterface
+        fun saveReminderSettings(
+            enabled: Boolean,
+            intervalMinutes: Int,
+            catMorning: Boolean,
+            catEvening: Boolean,
+            catJawami: Boolean,
+            catPrayer: Boolean,
+            catSleep: Boolean,
+            catRuqyah: Boolean
+        ) {
+            val prefs = context.getSharedPreferences("adhkar_prefs", Context.MODE_PRIVATE)
+            prefs.edit()
+                .putBoolean("reminders_enabled", enabled)
+                .putInt("interval_minutes", intervalMinutes)
+                .putBoolean("cat_morning", catMorning)
+                .putBoolean("cat_evening", catEvening)
+                .putBoolean("cat_jawami", catJawami)
+                .putBoolean("cat_prayer", catPrayer)
+                .putBoolean("cat_sleep", catSleep)
+                .putBoolean("cat_ruqyah", catRuqyah)
+                .apply()
+
+            if (enabled) {
+                DhikrAlarmReceiver.scheduleNextReminder(context, intervalMinutes)
+            } else {
+                DhikrAlarmReceiver.cancelReminder(context)
+            }
+        }
+
+        @JavascriptInterface
+        fun triggerNativeNotification(categoryTitle: String, text: String, reward: String) {
+            val item = DhikrItem("custom", "custom", categoryTitle, text, 1, reward)
+            NotificationHelper.showDhikrPopupNotification(context, item)
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (this::webView.isInitialized && webView.canGoBack()) {
+            webView.goBack()
+        } else {
+            super.onBackPressed()
+        }
     }
 
     private fun requestNotificationPermissionIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
             ) {
                 ActivityCompat.requestPermissions(
                     this,
@@ -71,27 +126,6 @@ class MainActivity : AppCompatActivity() {
                     101
                 )
             }
-        }
-    }
-
-    inner class AndroidBridge(private val context: Context) {
-        @JavascriptInterface
-        fun scheduleReminder(intervalMinutes: Int, selectedCategoriesJson: String) {
-            NotificationHelper.scheduleRepeatingReminder(
-                context,
-                intervalMinutes,
-                selectedCategoriesJson
-            )
-        }
-
-        @JavascriptInterface
-        fun cancelReminder() {
-            NotificationHelper.cancelReminder(context)
-        }
-
-        @JavascriptInterface
-        fun triggerInstantReminder(category: String, dhikrText: String, rewardText: String) {
-            NotificationHelper.showNotification(context, category, dhikrText, rewardText)
         }
     }
 }
