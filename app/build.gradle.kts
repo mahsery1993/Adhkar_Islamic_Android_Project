@@ -5,13 +5,13 @@ plugins {
 
 android {
     namespace = "com.islamic.adhkar"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.islamic.adhkar"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 1
+        targetSdk = 36
+        versionCode = 2
         versionName = "1.0.0"
     }
 
