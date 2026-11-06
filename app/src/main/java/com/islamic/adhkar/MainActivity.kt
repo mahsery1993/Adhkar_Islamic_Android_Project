@@ -3,10 +3,14 @@ package com.islamic.adhkar
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import android.view.View
 import android.view.WindowManager
 import android.webkit.JavascriptInterface
@@ -59,7 +63,17 @@ class MainActivity : AppCompatActivity() {
         // تحميل التصميم الاحترافي الكامل من مجلد assets
         webView.loadUrl("file:///android_asset/adhkar_islamic_app.html")
 
-        // تفعيل الجدولة الافتراضية في الخلفية عند أول تشغيل
+        // تفعيل الجدولة الافتراضية في الخلفية عند التشغيل
+        ensureBackgroundReminderScheduled()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // تأكيد استمرار جدولة منبه الخلفية عند الخروج من التطبيق أو إغلاقه
+        ensureBackgroundReminderScheduled()
+    }
+
+    private fun ensureBackgroundReminderScheduled() {
         val prefs = getSharedPreferences("adhkar_prefs", Context.MODE_PRIVATE)
         if (prefs.getBoolean("reminders_enabled", true)) {
             val savedMin = prefs.getInt("interval_minutes", 30)
@@ -103,6 +117,24 @@ class MainActivity : AppCompatActivity() {
         fun triggerNativeNotification(categoryTitle: String, text: String, reward: String) {
             val item = DhikrItem("custom", "custom", categoryTitle, text, 1, reward)
             NotificationHelper.showDhikrPopupNotification(context, item)
+        }
+
+        @JavascriptInterface
+        fun requestBackgroundPermission() {
+            requestNotificationPermissionIfNeeded()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                try {
+                    val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+                    if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                        val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                            data = Uri.parse("package:$packageName")
+                        }
+                        startActivity(intent)
+                    }
+                } catch (e: Exception) {
+                    // Ignore if device does not support this screen
+                }
+            }
         }
     }
 
