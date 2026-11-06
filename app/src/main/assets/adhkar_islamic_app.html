@@ -1215,6 +1215,33 @@
 
         state.remainingSeconds = state.settings.intervalMinutes * 60;
 
+        // Automatic Daily Reset Check (Resets Adhkar counters automatically at the start of every new day)
+        function getTodayDateString() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function checkAndPerformDailyReset(showNotificationToast) {
+            const todayStr = getTodayDateString();
+            const lastDateStr = loadStorage('adhkar_last_date_v1', null);
+            if (lastDateStr !== todayStr) {
+                state.counts = {};
+                saveStorage('adhkar_counts_v1', state.counts);
+                saveStorage('adhkar_last_date_v1', todayStr);
+                if (lastDateStr !== null && showNotificationToast) {
+                    renderAdhkar();
+                    showToast('🌅 بدأ يوم جديد! تم تصفير عدادات الأذكار اليومية تلقائياً');
+                }
+                return true;
+            }
+            return false;
+        }
+
+        checkAndPerformDailyReset(false);
+
         // Web Audio API gentle chime generator
         let audioCtx = null;
         function playChime(type) {
@@ -1715,6 +1742,7 @@
         function startReminderTimer() {
             if (countdownIntervalId) clearInterval(countdownIntervalId);
             countdownIntervalId = setInterval(() => {
+                checkAndPerformDailyReset(true);
                 if (!state.settings.enabled) {
                     document.getElementById('countdownTimer').textContent = 'متوقف';
                     return;
@@ -1723,6 +1751,33 @@
                 if (state.remainingSeconds <= 0) {
                     triggerPopupNotification(pickRandomDhikrForPopup());
                     state.remainingSeconds = state.settings.intervalMinutes * 60;
+
+        // Automatic Daily Reset Check (Resets Adhkar counters automatically at the start of every new day)
+        function getTodayDateString() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function checkAndPerformDailyReset(showNotificationToast) {
+            const todayStr = getTodayDateString();
+            const lastDateStr = loadStorage('adhkar_last_date_v1', null);
+            if (lastDateStr !== todayStr) {
+                state.counts = {};
+                saveStorage('adhkar_counts_v1', state.counts);
+                saveStorage('adhkar_last_date_v1', todayStr);
+                if (lastDateStr !== null && showNotificationToast) {
+                    renderAdhkar();
+                    showToast('🌅 بدأ يوم جديد! تم تصفير عدادات الأذكار اليومية تلقائياً');
+                }
+                return true;
+            }
+            return false;
+        }
+
+        checkAndPerformDailyReset(false);
                 }
                 const mins = Math.floor(state.remainingSeconds / 60);
                 const secs = state.remainingSeconds % 60;
@@ -1861,6 +1916,11 @@
         });
 
         document.getElementById('requestSysNotifBtn').addEventListener('click', () => {
+            if (window.AndroidBridge && window.AndroidBridge.requestBackgroundPermission) {
+                window.AndroidBridge.requestBackgroundPermission();
+                showToast('تم تفعيل العمل في الخلفية وإشعارات الهاتف بنجاح');
+                return;
+            }
             if (!('Notification' in window)) {
                 showToast('تم تفعيل الإشعارات المنبثقة داخل التطبيق');
                 return;
@@ -1905,6 +1965,20 @@
                     }
                 });
             });
+        });
+
+                // Check daily reset whenever user returns to the app
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                if (checkAndPerformDailyReset(true)) {
+                    renderAdhkar();
+                }
+            }
+        });
+        window.addEventListener('focus', () => {
+            if (checkAndPerformDailyReset(true)) {
+                renderAdhkar();
+            }
         });
 
         // Initialize App
