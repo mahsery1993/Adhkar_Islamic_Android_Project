@@ -56,8 +56,42 @@ class MainActivity : AppCompatActivity() {
             cacheMode = WebSettings.LOAD_DEFAULT
         }
 
-        webView.webViewClient = WebViewClient()
-        webView.webChromeClient = WebChromeClient()
+        webView.settings.setGeolocationEnabled(true)
+        webView.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                if (url != null && (url.startsWith("https://www.google.com/maps") || url.startsWith("geo:"))) {
+                    try {
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                        return true
+                    } catch (e: Exception) {}
+                }
+                return false
+            }
+        }
+        webView.webChromeClient = object : WebChromeClient() {
+            override fun onGeolocationPermissionsShowPrompt(
+                origin: String?,
+                callback: android.webkit.GeolocationPermissions.Callback?
+            ) {
+                if (ContextCompat.checkSelfPermission(
+                        this@MainActivity,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    callback?.invoke(origin, true, false)
+                } else {
+                    ActivityCompat.requestPermissions(
+                        this@MainActivity,
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        ),
+                        102
+                    )
+                    callback?.invoke(origin, true, false)
+                }
+            }
+        }
         webView.addJavascriptInterface(AndroidBridge(this), "AndroidBridge")
 
         // تحميل التصميم الاحترافي الكامل من مجلد assets
