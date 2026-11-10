@@ -418,8 +418,8 @@
                             <p id="nextPrayerCountdown" class="text-sm font-mono font-bold text-emerald-100 mt-1">متبقي: --:--:--</p>
                         </div>
                         <div class="text-left">
-                            <p id="hijriDateDisplay" class="text-xs font-bold text-emerald-200 bg-black/25 px-3 py-1 rounded-xl border border-white/10">--</p>
-                            <p id="gregorianDateDisplay" class="text-[11px] text-emerald-300/90 mt-1 px-1">--</p>
+                            <p id="hijriDateDisplay" class="hidden"></p>
+                            <p id="gregorianDateDisplay" class="text-xs font-bold text-emerald-100 bg-black/25 px-3 py-1.5 rounded-xl border border-white/10">--</p>
                         </div>
                     </div>
 
@@ -1362,7 +1362,7 @@
 
         state.remainingSeconds = state.settings.intervalMinutes * 60;
 
-        // Automatic Daily Reset Check (Resets Adhkar counters automatically at the start of every new day)
+        // Automatic Daily Reset Check (Resets Adhkar AND Tasbih counters automatically at the start of every new day)
         function getTodayDateString() {
             const now = new Date();
             const y = now.getFullYear();
@@ -1376,11 +1376,18 @@
             const lastDateStr = loadStorage('adhkar_last_date_v1', null);
             if (lastDateStr !== todayStr) {
                 state.counts = {};
+                state.totalTasbih = 0;
+                state.tasbihPhraseCounts = {};
+                state.tasbihCurrent = 0;
                 saveStorage('adhkar_counts_v1', state.counts);
+                saveStorage('adhkar_total_tasbih_v1', 0);
+                saveStorage('adhkar_tasbih_phrase_counts_v1', {});
                 saveStorage('adhkar_last_date_v1', todayStr);
                 if (lastDateStr !== null && showNotificationToast) {
                     renderAdhkar();
-                    showToast('🌅 بدأ يوم جديد! تم تصفير عدادات الأذكار اليومية تلقائياً');
+                    updateTasbihUI();
+                    renderTasbihPhrases();
+                    showToast('🌅 بدأ يوم جديد! تم تصفير عدادات الأذكار والتسبيحات اليومية تلقائياً');
                 }
                 return true;
             }
@@ -1721,9 +1728,16 @@
 
         document.getElementById('resetDailyProgressBtn').addEventListener('click', () => {
             state.counts = {};
+            state.totalTasbih = 0;
+            state.tasbihPhraseCounts = {};
+            state.tasbihCurrent = 0;
             saveStorage('adhkar_counts_v1', state.counts);
+            saveStorage('adhkar_total_tasbih_v1', 0);
+            saveStorage('adhkar_tasbih_phrase_counts_v1', {});
             renderAdhkar();
-            showToast('تم تصفير عدادات اليوم بنجاح');
+            updateTasbihUI();
+            renderTasbihPhrases();
+            showToast('تم تصفير عدادات الأذكار والتسبيحات لليوم بنجاح');
         });
 
         // Electronic Tasbih View Logic (Each phrase has its own independent counter)
@@ -1899,32 +1913,7 @@
                     triggerPopupNotification(pickRandomDhikrForPopup());
                     state.remainingSeconds = state.settings.intervalMinutes * 60;
 
-        // Automatic Daily Reset Check (Resets Adhkar counters automatically at the start of every new day)
-        function getTodayDateString() {
-            const now = new Date();
-            const y = now.getFullYear();
-            const m = String(now.getMonth() + 1).padStart(2, '0');
-            const d = String(now.getDate()).padStart(2, '0');
-            return `${y}-${m}-${d}`;
-        }
 
-        function checkAndPerformDailyReset(showNotificationToast) {
-            const todayStr = getTodayDateString();
-            const lastDateStr = loadStorage('adhkar_last_date_v1', null);
-            if (lastDateStr !== todayStr) {
-                state.counts = {};
-                saveStorage('adhkar_counts_v1', state.counts);
-                saveStorage('adhkar_last_date_v1', todayStr);
-                if (lastDateStr !== null && showNotificationToast) {
-                    renderAdhkar();
-                    showToast('🌅 بدأ يوم جديد! تم تصفير عدادات الأذكار اليومية تلقائياً');
-                }
-                return true;
-            }
-            return false;
-        }
-
-        checkAndPerformDailyReset(false);
                 }
                 const mins = Math.floor(state.remainingSeconds / 60);
                 const secs = state.remainingSeconds % 60;
@@ -2124,12 +2113,16 @@
             if (!document.hidden) {
                 if (checkAndPerformDailyReset(true)) {
                     renderAdhkar();
+                    updateTasbihUI();
+                    renderTasbihPhrases();
                 }
             }
         });
         window.addEventListener('focus', () => {
             if (checkAndPerformDailyReset(true)) {
                 renderAdhkar();
+                updateTasbihUI();
+                renderTasbihPhrases();
             }
         });
 
@@ -2394,56 +2387,50 @@
             showToast('تم تحديث طريقة الحساب الفقهية');
         });
 
-        document.getElementById('detectGpsBtn').addEventListener('click', () => {
-            if (!navigator.geolocation) {
-                showToast('يمكنك اختيار مدينتك مباشرة من القائمة');
-                return;
-            }
-            showToast('جاري تحديد موقعك...');
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    prayerConfig.lat = pos.coords.latitude;
-                    prayerConfig.lng = pos.coords.longitude;
-                    prayerConfig.tz = -new Date().getTimezoneOffset() / 60.0;
-                    prayerConfig.name = `موقعي الحالي (${prayerConfig.lat.toFixed(2)}, ${prayerConfig.lng.toFixed(2)})`;
-                    saveStorage(PRAYER_LOC_STORAGE_KEY, prayerConfig);
-                    renderPrayerTimesView();
-                    showToast('تم تحديث مواقيت الصلاة وأقرب مسجد حسب موقعك الحالي');
-                    searchNearestMosquesByCoords(pos.coords.latitude, pos.coords.longitude, true);
-                },
-                () => {
-                    showToast('تعذر جلب الموقع تلقائياً، اختر مدينتك من القائمة');
-                },
-                { timeout: 7000 }
-            );
-        });
-
-        setInterval(() => {
-            const ptSec = document.getElementById('viewPrayerTimes');
-            if (ptSec && !ptSec.classList.contains('hidden')) {
-                renderPrayerTimesView();
-            }
-        }, 1000);
-
-
         // =====================================================================
-        // Nearest Mosque Finder (Overpass API + Haversine Distance + Google Maps)
+        // Reverse Geocoding (Always Display City / Area Name, NEVER raw coords)
         // =====================================================================
-        const KNOWN_MOSQUES_FALLBACK = [
-            { name: 'مسجد الملك المؤسس عبد الله الأول (العبدلي - عمّان)', lat: 31.9614, lng: 35.9128 },
-            { name: 'المسجد الحسيني الكبير (وسط البلد - عمّان)', lat: 31.9506, lng: 35.9348 },
-            { name: 'مسجد الملك الحسين بن طلال (دابوق - عمّان)', lat: 31.9936, lng: 35.8197 },
-            { name: 'مسجد أبو درويش (جبل الأشرفية - عمّان)', lat: 31.9429, lng: 35.9397 },
-            { name: 'مسجد الجامعة الأردنية (الجبيهة - عمّان)', lat: 32.0163, lng: 35.8718 },
-            { name: 'مسجد الكالوتي (الرابية - عمّان)', lat: 31.9762, lng: 35.8858 },
-            { name: 'مسجد الشهيد الملك عبد الله (إربد)', lat: 32.5514, lng: 35.8510 },
-            { name: 'مسجد عمر بن الخطاب (الزرقاء)', lat: 32.0630, lng: 36.0912 },
-            { name: 'مسجد السلط الكبير (السلط)', lat: 32.0392, lng: 35.7272 },
-            { name: 'مسجد الحسين بن طلال (مادبا)', lat: 31.7195, lng: 35.7941 },
-            { name: 'مسجد الشريف الحسين بن علي (العقبة)', lat: 29.5279, lng: 35.0016 },
-            { name: 'المسجد الأقصى المبارك (القدس الشريف)', lat: 31.7761, lng: 35.2358 },
-            { name: 'المسجد الحرام (مكة المكرمة)', lat: 21.4225, lng: 39.8262 },
-            { name: 'المسجد النبوي الشريف (المدينة المنورة)', lat: 24.4672, lng: 39.6112 }
+        const ARAB_CITIES_REFERENCE = [
+            { name: 'عمّان، الأردن', lat: 31.9539, lng: 35.9106 },
+            { name: 'إربد، الأردن', lat: 32.5568, lng: 35.8469 },
+            { name: 'الزرقاء، الأردن', lat: 32.0608, lng: 36.0942 },
+            { name: 'السلط، الأردن', lat: 32.0392, lng: 35.7272 },
+            { name: 'مادبا، الأردن', lat: 31.7197, lng: 35.7956 },
+            { name: 'جرش، الأردن', lat: 32.2808, lng: 35.8993 },
+            { name: 'عجلون، الأردن', lat: 32.3326, lng: 35.7517 },
+            { name: 'المفرق، الأردن', lat: 32.3429, lng: 36.2080 },
+            { name: 'الكرك، الأردن', lat: 31.1853, lng: 35.7048 },
+            { name: 'الطفيلة، الأردن', lat: 30.8337, lng: 35.6161 },
+            { name: 'معان، الأردن', lat: 30.1927, lng: 35.7362 },
+            { name: 'العقبة، الأردن', lat: 29.5321, lng: 35.0063 },
+            { name: 'الرمثا، الأردن', lat: 32.5587, lng: 36.0082 },
+            { name: 'الرصيفة، الأردن', lat: 32.0178, lng: 36.0464 },
+            { name: 'سحاب، الأردن', lat: 31.8703, lng: 36.0048 },
+            { name: 'عين الباشا، الأردن', lat: 32.0586, lng: 35.8308 },
+            { name: 'القدس الشريف، فلسطين', lat: 31.7683, lng: 35.2137 },
+            { name: 'غزة، فلسطين', lat: 31.5017, lng: 34.4668 },
+            { name: 'دمشق، سوريا', lat: 33.5138, lng: 36.2765 },
+            { name: 'بيروت، لبنان', lat: 33.8938, lng: 35.5018 },
+            { name: 'مكة المكرمة، السعودية', lat: 21.4225, lng: 39.8262 },
+            { name: 'المدينة المنورة، السعودية', lat: 24.4672, lng: 39.6112 },
+            { name: 'الرياض، السعودية', lat: 24.7136, lng: 46.6753 },
+            { name: 'جدة، السعودية', lat: 21.5433, lng: 39.1728 },
+            { name: 'الدمام، السعودية', lat: 26.4207, lng: 50.0888 },
+            { name: 'مدينة الكويت', lat: 29.3759, lng: 47.9774 },
+            { name: 'الدوحة، قطر', lat: 25.2854, lng: 51.5310 },
+            { name: 'المنامة، البحرين', lat: 26.2285, lng: 50.5860 },
+            { name: 'دبي، الإمارات', lat: 25.2048, lng: 55.2708 },
+            { name: 'أبوظبي، الإمارات', lat: 24.4539, lng: 54.3773 },
+            { name: 'مسقط، عُمان', lat: 23.5880, lng: 58.3829 },
+            { name: 'القاهرة، مصر', lat: 30.0444, lng: 31.2357 },
+            { name: 'الإسكندرية، مصر', lat: 31.2001, lng: 29.9187 },
+            { name: 'بغداد، العراق', lat: 33.3152, lng: 44.3661 },
+            { name: 'صنعاء، اليمن', lat: 15.3694, lng: 44.1910 },
+            { name: 'الخرطوم، السودان', lat: 15.5007, lng: 32.5599 },
+            { name: 'طرابلس، ليبيا', lat: 32.8872, lng: 13.1913 },
+            { name: 'تونس العاصمة', lat: 36.8065, lng: 10.1815 },
+            { name: 'الجزائر العاصمة', lat: 36.7538, lng: 3.0588 },
+            { name: 'الرباط، المغرب', lat: 34.0209, lng: -6.8416 }
         ];
 
         function computeHaversineMeters(lat1, lon1, lat2, lon2) {
@@ -2458,25 +2445,136 @@
             return Math.round(R * c);
         }
 
+        function findClosestKnownCityName(lat, lng) {
+            let bestCity = ARAB_CITIES_REFERENCE[0].name;
+            let minDist = Infinity;
+            for (const c of ARAB_CITIES_REFERENCE) {
+                const d = computeHaversineMeters(lat, lng, c.lat, c.lng);
+                if (d < minDist) {
+                    minDist = d;
+                    bestCity = c.name;
+                }
+            }
+            return bestCity;
+        }
+
+        // Clean any old stored coordinate strings from prayerConfig.name immediately
+        if (prayerConfig.name && (prayerConfig.name.includes('(') || /\d/.test(prayerConfig.name))) {
+            prayerConfig.name = findClosestKnownCityName(prayerConfig.lat, prayerConfig.lng);
+            saveStorage(PRAYER_LOC_STORAGE_KEY, prayerConfig);
+        }
+
+        async function resolveCityNameFromCoords(lat, lng) {
+            const fallbackCity = findClosestKnownCityName(lat, lng);
+            try {
+                const resp = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14&accept-language=ar`,
+                    { headers: { 'Accept': 'application/json' } }
+                );
+                if (resp.ok) {
+                    const data = await resp.json();
+                    const addr = (data && data.address) ? data.address : {};
+                    const suburb = addr.suburb || addr.neighbourhood || addr.quarter || addr.town || addr.village || '';
+                    const city = addr.city || addr.state || addr.county || '';
+                    const country = addr.country || '';
+                    if (suburb && city && suburb !== city) {
+                        return `${suburb} - ${city}`;
+                    }
+                    if (city && country) {
+                        return `${city}، ${country}`;
+                    }
+                    if (city || suburb) {
+                        return city || suburb;
+                    }
+                }
+            } catch (e) {}
+
+            try {
+                const resp2 = await fetch(
+                    `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=ar`
+                );
+                if (resp2.ok) {
+                    const d2 = await resp2.json();
+                    const loc = d2.locality || d2.city || '';
+                    const city = d2.city || d2.principalSubdivision || '';
+                    if (loc && city && loc !== city) return `${loc}، ${city}`;
+                    if (city) return city;
+                }
+            } catch (e) {}
+
+            return fallbackCity;
+        }
+
+        // =====================================================================
+        // Ultra-Accurate Nearest Mosque Finder (Picks TRUE physically closest mosque)
+        // =====================================================================
         function formatDistanceArabic(meters) {
             if (meters < 1000) {
                 return `${meters} متر`;
             }
-            return `${(meters / 1000).toFixed(1)} كم`;
+            return `${(meters / 1000).toFixed(2)} كم`;
         }
 
-        function updateMapLinkForCoords(lat, lng, mosqueName) {
+        function updateMapLinkForCoords(lat, lng, mosqueName, userLat, userLng) {
             const linkEl = document.getElementById('openMosqueMapLink');
             const btnTextEl = document.getElementById('goToMosqueBtnText');
             if (!linkEl) return;
             if (lat && lng) {
-                linkEl.href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=walking`;
+                const originParam = (userLat && userLng) ? `&origin=${userLat},${userLng}` : '';
+                linkEl.href = `https://www.google.com/maps/dir/?api=1${originParam}&destination=${lat},${lng}&travelmode=walking`;
                 if (btnTextEl && mosqueName) {
                     btnTextEl.textContent = `الذهاب إلى ${mosqueName}`;
                 }
             } else {
                 linkEl.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('مسجد قريب مني')}`;
             }
+        }
+
+        async function fetchOverpassMosquesWithFailover(userLat, userLng) {
+            // Search ALL Muslim places of worship & mosques within 5km (nodes, ways, relations)
+            const overpassQuery = `[out:json][timeout:10];(node["amenity"="place_of_worship"]["religion"="muslim"](around:5000,${userLat},${userLng});way["amenity"="place_of_worship"]["religion"="muslim"](around:5000,${userLat},${userLng});relation["amenity"="place_of_worship"]["religion"="muslim"](around:5000,${userLat},${userLng});node["building"="mosque"](around:5000,${userLat},${userLng});way["building"="mosque"](around:5000,${userLat},${userLng}););out center;`;
+
+            const endpoints = [
+                'https://overpass-api.de/api/interpreter?data=',
+                'https://overpass.kumi.systems/api/interpreter?data=',
+                'https://lz4.overpass-api.de/api/interpreter?data='
+            ];
+
+            for (const base of endpoints) {
+                try {
+                    const controller = new AbortController();
+                    const timer = setTimeout(() => controller.abort(), 6500);
+                    const resp = await fetch(base + encodeURIComponent(overpassQuery), { signal: controller.signal });
+                    clearTimeout(timer);
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        if (data && Array.isArray(data.elements) && data.elements.length > 0) {
+                            return data.elements;
+                        }
+                    }
+                } catch (e) {}
+            }
+            return [];
+        }
+
+        async function resolveMosqueNameIfUnnamed(mLat, mLng) {
+            try {
+                const resp = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${mLat}&lon=${mLng}&zoom=18&accept-language=ar`
+                );
+                if (resp.ok) {
+                    const data = await resp.json();
+                    if (data && data.name) {
+                        return data.name;
+                    }
+                    const addr = (data && data.address) ? data.address : {};
+                    const amenity = addr.amenity || addr.place_of_worship || '';
+                    if (amenity) return amenity;
+                    const road = addr.road || addr.neighbourhood || addr.suburb || '';
+                    if (road) return `مسجد قريب (${road})`;
+                }
+            } catch (e) {}
+            return 'مسجد الحي القريب منك';
         }
 
         async function searchNearestMosquesByCoords(userLat, userLng, isExactGps) {
@@ -2486,66 +2584,76 @@
             const listEl = document.getElementById('nearbyMosquesList');
 
             if (!nameEl) return;
-            nameEl.textContent = 'جاري البحث عن أقرب مسجد...';
-            subEl.textContent = 'يتم الآن جلب اسم أقرب مسجد والمسافة إليه...';
+            nameEl.textContent = 'جاري تحديد أقرب مسجد فعلي لموقعك...';
+            subEl.textContent = 'يتم حساب المسافة بالمتر لأقرب المساجد المحيطة بك...';
 
             try {
-                // Query Overpass API within 3500m radius for mosques
-                const overpassQuery = `[out:json][timeout:8];(node["amenity"="place_of_worship"]["religion"="muslim"](around:3500,${userLat},${userLng});way["amenity"="place_of_worship"]["religion"="muslim"](around:3500,${userLat},${userLng}););out center 30;`;
-                const url = 'https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(overpassQuery);
-                const resp = await fetch(url);
-                if (!resp.ok) throw new Error('Overpass HTTP error');
-                const data = await resp.json();
-
-                const elements = (data && data.elements) ? data.elements : [];
+                const elements = await fetchOverpassMosquesWithFailover(userLat, userLng);
                 const mosques = [];
+
                 elements.forEach(el => {
                     const mLat = el.lat || (el.center && el.center.lat);
                     const mLng = el.lon || (el.center && el.center.lon);
                     if (!mLat || !mLng) return;
                     const tags = el.tags || {};
-                    let rawName = tags['name:ar'] || tags.name || tags['official_name:ar'] || tags.official_name || '';
-                    if (!rawName) return; // Only include mosques that have an actual name so the user sees the exact mosque name!
-                    if (!rawName.includes('مسجد') && !rawName.includes('جامع') && !rawName.includes('مصلى')) {
-                        rawName = 'مسجد ' + rawName;
+                    // Do NOT skip unnamed mosques! Keep every single mosque so the true closest one wins.
+                    let rawName = tags['name:ar'] || tags.name || tags['official_name:ar'] || tags.official_name || tags['alt_name:ar'] || tags.alt_name || '';
+                    const hasExplicitName = !!rawName.trim();
+                    if (hasExplicitName && !rawName.includes('مسجد') && !rawName.includes('جامع') && !rawName.includes('مصلى')) {
+                        rawName = 'مسجد ' + rawName.trim();
                     }
                     const dist = computeHaversineMeters(userLat, userLng, mLat, mLng);
-                    mosques.push({ name: rawName, lat: mLat, lng: mLng, dist: dist });
+                    mosques.push({
+                        name: hasExplicitName ? rawName.trim() : '',
+                        lat: mLat,
+                        lng: mLng,
+                        dist: dist
+                    });
                 });
 
+                // Sort strictly by physical distance (closest first!)
                 mosques.sort((a, b) => a.dist - b.dist);
 
-                // Deduplicate by name
+                // Deduplicate mosques that are actually the same building (within 35 meters of each other)
                 const uniqueMosques = [];
-                const seen = new Set();
                 for (const m of mosques) {
-                    const k = m.name.trim();
-                    if (!seen.has(k)) {
-                        seen.add(k);
+                    const existing = uniqueMosques.find(u => computeHaversineMeters(u.lat, u.lng, m.lat, m.lng) < 35);
+                    if (existing) {
+                        if (!existing.name && m.name) {
+                            existing.name = m.name;
+                        }
+                    } else {
                         uniqueMosques.push(m);
                     }
-                    if (uniqueMosques.length >= 3) break;
+                    if (uniqueMosques.length >= 4) break;
                 }
 
                 if (uniqueMosques.length > 0) {
+                    // Ensure the top 3 have readable names (if a very close mosque has no name in OSM, fetch its street/area name or name from Nominatim)
+                    for (let i = 0; i < Math.min(3, uniqueMosques.length); i++) {
+                        if (!uniqueMosques[i].name) {
+                            uniqueMosques[i].name = await resolveMosqueNameIfUnnamed(uniqueMosques[i].lat, uniqueMosques[i].lng);
+                        }
+                    }
+
                     const closest = uniqueMosques[0];
                     nameEl.textContent = closest.name;
                     badgeEl.textContent = `يبعد ${formatDistanceArabic(closest.dist)}`;
                     badgeEl.classList.remove('hidden');
                     const walkMins = Math.max(1, Math.round(closest.dist / 80));
-                    subEl.textContent = `المسافة: ${formatDistanceArabic(closest.dist)} (${walkMins} دقائق مشياً) — اضغط الزر بالأسفل لفتح المسار في Google Maps`;
-                    updateMapLinkForCoords(closest.lat, closest.lng, closest.name);
+                    subEl.textContent = `الأقرب فعلياً لموقعك (${formatDistanceArabic(closest.dist)} • حوالي ${walkMins} دقائق مشياً)`;
+                    updateMapLinkForCoords(closest.lat, closest.lng, closest.name, userLat, userLng);
 
                     if (uniqueMosques.length > 1) {
                         listEl.innerHTML = '';
-                        uniqueMosques.slice(1).forEach(m => {
+                        uniqueMosques.slice(1, 3).forEach(m => {
                             const itemDiv = document.createElement('div');
                             itemDiv.className = 'flex items-center justify-between text-xs bg-white/80 dark:bg-slate-900/60 px-3 py-2 rounded-xl border border-emerald-100 dark:border-slate-700';
                             itemDiv.innerHTML = `
                                 <span class="font-bold text-slate-800 dark:text-slate-100">🕌 ${m.name}</span>
                                 <div class="flex items-center gap-2 shrink-0">
                                     <span class="text-[11px] font-mono text-emerald-700 dark:text-amber-300 font-bold">${formatDistanceArabic(m.dist)}</span>
-                                    <a href="https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}&travelmode=walking" target="_blank" rel="noopener" class="text-[11px] bg-amber-500 hover:bg-amber-400 text-slate-950 px-2.5 py-1 rounded-lg font-extrabold shadow-sm">الذهاب للمسجد</a>
+                                    <a href="https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLng}&destination=${m.lat},${m.lng}&travelmode=walking" target="_blank" rel="noopener" class="text-[11px] bg-amber-500 hover:bg-amber-400 text-slate-950 px-2.5 py-1 rounded-lg font-extrabold shadow-sm">الذهاب للمسجد</a>
                                 </div>
                             `;
                             listEl.appendChild(itemDiv);
@@ -2556,26 +2664,44 @@
                     }
                     return;
                 }
-            } catch (err) {
-                // Fallback to offline database if offline or Overpass busy
-            }
+            } catch (err) {}
 
-            // Offline fallback using known named mosques
-            const offlineSorted = KNOWN_MOSQUES_FALLBACK.map(m => ({
-                name: m.name,
-                lat: m.lat,
-                lng: m.lng,
-                dist: computeHaversineMeters(userLat, userLng, m.lat, m.lng)
-            })).sort((a, b) => a.dist - b.dist);
-
-            const best = offlineSorted[0];
-            nameEl.textContent = best.name;
-            badgeEl.textContent = `يبعد ${formatDistanceArabic(best.dist)}`;
+            // Fallback if no internet connection at all: open direct Google Maps search for nearest mosque around user's exact coordinates
+            nameEl.textContent = `أقرب مسجد في ${prayerConfig.name}`;
+            badgeEl.textContent = 'عبر الخريطة المباشرة';
             badgeEl.classList.remove('hidden');
-            subEl.textContent = isExactGps
-                ? 'اضغط على زر «الذهاب للمسجد» لفتح الاتجاهات المباشرة في Google Maps'
-                : 'اضغط «تحديث موقعي» لتحديد أقرب مسجد لشارعك بدقة GPS';
-            updateMapLinkForCoords(best.lat, best.lng, best.name);
+            subEl.textContent = 'اضغط «الذهاب للمسجد» لفتح أقرب مسجد لموقعك مباشرة في خرائط Google';
+            const linkEl = document.getElementById('openMosqueMapLink');
+            if (linkEl) {
+                linkEl.href = `https://www.google.com/maps/search/mosque/@${userLat},${userLng},16z`;
+            }
+        }
+
+        async function updateLocationAndMosquesFromGps(pos, showSuccessToast) {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            prayerConfig.lat = lat;
+            prayerConfig.lng = lng;
+            prayerConfig.tz = -new Date().getTimezoneOffset() / 60.0;
+
+            // Immediately set closest known city name so coordinates NEVER appear on screen
+            prayerConfig.name = findClosestKnownCityName(lat, lng);
+            saveStorage(PRAYER_LOC_STORAGE_KEY, prayerConfig);
+            renderPrayerTimesView();
+
+            // Fetch exact neighborhood/city name in Arabic and closest mosques in parallel
+            resolveCityNameFromCoords(lat, lng).then(cityName => {
+                if (cityName) {
+                    prayerConfig.name = cityName;
+                    saveStorage(PRAYER_LOC_STORAGE_KEY, prayerConfig);
+                    renderPrayerTimesView();
+                }
+            });
+
+            await searchNearestMosquesByCoords(lat, lng, true);
+            if (showSuccessToast) {
+                showToast(`تم تحديد موقعك (${prayerConfig.name}) وأقرب مسجد بدقة`);
+            }
         }
 
         function triggerFindNearestMosque(silentIfDenied) {
@@ -2584,31 +2710,36 @@
                 return;
             }
             if (!silentIfDenied) {
-                showToast('جاري تحديد موقعك والبحث عن أقرب مسجد...');
+                showToast('جاري تحديد موقعك الدقيق وأقرب مسجد إليك...');
             }
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
-                    prayerConfig.lat = pos.coords.latitude;
-                    prayerConfig.lng = pos.coords.longitude;
-                    prayerConfig.tz = -new Date().getTimezoneOffset() / 60.0;
-                    prayerConfig.name = `موقعي الحالي (${prayerConfig.lat.toFixed(2)}, ${prayerConfig.lng.toFixed(2)})`;
-                    saveStorage(PRAYER_LOC_STORAGE_KEY, prayerConfig);
-                    renderPrayerTimesView();
-                    searchNearestMosquesByCoords(pos.coords.latitude, pos.coords.longitude, true);
-                    if (!silentIfDenied) {
-                        showToast('تم تحديد أقرب مسجد لموقعك الحالي بنجاح');
-                    }
+                    updateLocationAndMosquesFromGps(pos, !silentIfDenied);
                 },
                 () => {
+                    if (!silentIfDenied) {
+                        showToast('يرجى تفعيل الموقع (GPS) في الهاتف لتحديد أقرب مسجد لشارعك بدقة');
+                    }
                     searchNearestMosquesByCoords(prayerConfig.lat, prayerConfig.lng, false);
                 },
-                { enableHighAccuracy: true, timeout: 7000 }
+                { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
             );
         }
+
+        document.getElementById('detectGpsBtn').addEventListener('click', () => {
+            triggerFindNearestMosque(false);
+        });
 
         document.getElementById('findNearestMosqueBtn').addEventListener('click', () => {
             triggerFindNearestMosque(false);
         });
+
+        setInterval(() => {
+            const ptSec = document.getElementById('viewPrayerTimes');
+            if (ptSec && !ptSec.classList.contains('hidden')) {
+                renderPrayerTimesView();
+            }
+        }, 1000);
 
         // Initialize App
         renderPrayerTimesView();
