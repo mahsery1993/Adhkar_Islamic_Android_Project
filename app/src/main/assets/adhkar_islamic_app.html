@@ -441,11 +441,20 @@
                         <div>
                             <label for="prayerCitySelect" class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">اختر المدينة / الدولة:</label>
                             <select id="prayerCitySelect" class="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs font-bold focus:outline-none focus:border-emerald-500">
-                                <optgroup label="الأردن وفلسطين والشام">
-                                    <option value="31.9539,35.9106,3,عمان، الأردن">عمان، الأردن</option>
+                                <optgroup label="محافظات المملكة الأردنية الهاشمية (حسب وزارة الأوقاف)">
+                                    <option value="31.9539,35.9106,3,عمان، الأردن">عمّان، الأردن</option>
                                     <option value="32.5568,35.8469,3,إربد، الأردن">إربد، الأردن</option>
-                                    <option value="32.0608,36.0942,3,الزرقاء، الأردن">الزرقاء، الأردن</option>
+                                    <option value="31.9539,35.9106,3,الزرقاء، الأردن">الزرقاء، الأردن (توقيت منطقة عمان)</option>
+                                    <option value="31.9539,35.9106,3,السلط / البلقاء، الأردن">السلط / البلقاء، الأردن</option>
+                                    <option value="31.9539,35.9106,3,مادبا، الأردن">مادبا، الأردن</option>
+                                    <option value="32.2808,35.8993,3,جرش وعجلون، الأردن">جرش وعجلون، الأردن</option>
+                                    <option value="32.3429,36.2080,3,المفرق، الأردن">المفرق، الأردن</option>
+                                    <option value="31.1853,35.7048,3,الكرك، الأردن">الكرك، الأردن</option>
+                                    <option value="30.8337,35.6161,3,الطفيلة، الأردن">الطفيلة، الأردن</option>
+                                    <option value="30.1927,35.7362,3,معان، الأردن">معان، الأردن</option>
                                     <option value="29.5321,35.0063,3,العقبة، الأردن">العقبة، الأردن</option>
+                                </optgroup>
+                                <optgroup label="فلسطين والشام">
                                     <option value="31.7683,35.2137,2,القدس الشريف، فلسطين">القدس الشريف، فلسطين</option>
                                     <option value="31.5017,34.4668,2,غزة، فلسطين">غزة، فلسطين</option>
                                     <option value="33.5138,36.2765,3,دمشق، سوريا">دمشق، سوريا</option>
@@ -2145,20 +2154,72 @@
             }
 
             const methods = {
-                jordan: { fajrAngle: 18.0, ishaAngle: 18.0, ishaMins: 0 },
-                umm_al_qura: { fajrAngle: 18.5, ishaAngle: 0, ishaMins: 90 },
-                mwl: { fajrAngle: 18.0, ishaAngle: 17.0, ishaMins: 0 },
-                egypt: { fajrAngle: 19.5, ishaAngle: 17.5, ishaMins: 0 },
-                karachi: { fajrAngle: 18.0, ishaAngle: 18.0, ishaMins: 0 }
+                jordan: {
+                    fajrAngle: 18.0,
+                    ishaAngle: 18.0,
+                    ishaMins: 0,
+                    fajrOffset: -0.5,
+                    sunriseOffset: -6.0,
+                    dhuhrOffset: 0.5,
+                    asrOffset: 0.0,
+                    maghribOffset: 5.5,
+                    ishaOffset: 0.0
+                },
+                umm_al_qura: {
+                    fajrAngle: 18.5,
+                    ishaAngle: 0,
+                    ishaMins: 90,
+                    fajrOffset: 0.0,
+                    sunriseOffset: 0.0,
+                    dhuhrOffset: 2.0,
+                    asrOffset: 0.0,
+                    maghribOffset: 1.0,
+                    ishaOffset: 0.0
+                },
+                mwl: {
+                    fajrAngle: 18.0,
+                    ishaAngle: 17.0,
+                    ishaMins: 0,
+                    fajrOffset: 0.0,
+                    sunriseOffset: 0.0,
+                    dhuhrOffset: 2.0,
+                    asrOffset: 0.0,
+                    maghribOffset: 1.0,
+                    ishaOffset: 0.0
+                },
+                egypt: {
+                    fajrAngle: 19.5,
+                    ishaAngle: 17.5,
+                    ishaMins: 0,
+                    fajrOffset: 0.0,
+                    sunriseOffset: -1.0,
+                    dhuhrOffset: 1.0,
+                    asrOffset: 0.0,
+                    maghribOffset: 1.0,
+                    ishaOffset: 0.0
+                },
+                karachi: {
+                    fajrAngle: 18.0,
+                    ishaAngle: 18.0,
+                    ishaMins: 0,
+                    fajrOffset: 0.0,
+                    sunriseOffset: 0.0,
+                    dhuhrOffset: 2.0,
+                    asrOffset: 0.0,
+                    maghribOffset: 1.0,
+                    ishaOffset: 0.0
+                }
             };
             const mCfg = methods[methodKey] || methods.jordan;
 
-            const fajr = sunAngleTime(mCfg.fajrAngle, true);
-            const sunrise = sunAngleTime(0.833, true);
-            const dhuhr = noon + (2.0 / 60.0); // 2 min precaution after zenith
-            const asr = asrTime(1); // Shafi'i / Majority standard
-            const maghrib = sunAngleTime(0.833, false) + (1.0 / 60.0);
-            const isha = mCfg.ishaMins > 0 ? (maghrib + mCfg.ishaMins / 60.0) : sunAngleTime(mCfg.ishaAngle, false);
+            const fajr = sunAngleTime(mCfg.fajrAngle, true) + (mCfg.fajrOffset / 60.0);
+            const sunrise = sunAngleTime(0.833, true) + (mCfg.sunriseOffset / 60.0);
+            const dhuhr = noon + (mCfg.dhuhrOffset / 60.0);
+            const asr = asrTime(1) + (mCfg.asrOffset / 60.0);
+            const maghrib = sunAngleTime(0.833, false) + (mCfg.maghribOffset / 60.0);
+            const isha = mCfg.ishaMins > 0
+                ? (maghrib + mCfg.ishaMins / 60.0)
+                : (sunAngleTime(mCfg.ishaAngle, false) + (mCfg.ishaOffset / 60.0));
 
             return [
                 { key: 'fajr', name: 'الفجر', icon: '🌌', hours: fajr },
