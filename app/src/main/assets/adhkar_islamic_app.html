@@ -506,20 +506,20 @@
                 <!-- Nearest Mosque Finder Card (أقرب مسجد حسب موقعك الحالي) -->
                 <div class="bg-gradient-to-r from-emerald-50 via-teal-50/70 to-amber-50/50 dark:from-slate-800 dark:via-slate-800/95 dark:to-emerald-950/40 rounded-2xl p-4 border border-emerald-200/80 dark:border-emerald-800/60 shadow-sm space-y-3">
                     <div class="flex items-start justify-between gap-2">
-                        <div class="flex items-start gap-2.5">
-                            <div class="w-10 h-10 rounded-2xl bg-emerald-700 text-white flex items-center justify-center text-lg shadow shrink-0">
+                        <div class="flex items-start gap-2.5 w-full">
+                            <div class="w-11 h-11 rounded-2xl bg-emerald-700 text-white flex items-center justify-center text-xl shadow shrink-0">
                                 🕌
                             </div>
-                            <div>
-                                <div class="flex items-center gap-1.5">
-                                    <h3 class="text-sm font-extrabold text-emerald-950 dark:text-emerald-200">أقرب مسجد لموقعك الحالي</h3>
-                                    <span id="mosqueDistanceBadge" class="hidden text-[10px] font-bold bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full"></span>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between gap-1.5">
+                                    <span class="text-[11px] font-bold text-emerald-800 dark:text-emerald-300">أقرب مسجد لموقعك الحالي</span>
+                                    <span id="mosqueDistanceBadge" class="text-[11px] font-bold bg-amber-500 text-slate-950 px-2.5 py-0.5 rounded-full">جاري التحديد...</span>
                                 </div>
-                                <p id="nearestMosqueName" class="text-xs font-bold text-slate-700 dark:text-slate-200 mt-1">
-                                    اضغط على «ابحث عن أقرب مسجد» لتحديد أقرب المساجد إليك
-                                </p>
-                                <p id="nearestMosqueSubtext" class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                                    يعرض اسم المسجد والمسافة بالمتر مع إمكانية فتح الاتجاهات في الخريطة
+                                <h3 id="nearestMosqueName" class="text-base font-extrabold text-emerald-950 dark:text-white mt-1">
+                                    مسجد الملك المؤسس عبد الله الأول
+                                </h3>
+                                <p id="nearestMosqueSubtext" class="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">
+                                    اضغط «تحديث موقعي وأقرب مسجد» لجلب أقرب مسجد لحيّك بدقة GPS
                                 </p>
                             </div>
                         </div>
@@ -529,14 +529,14 @@
                     <div id="nearbyMosquesList" class="hidden space-y-1.5 pt-2 border-t border-emerald-200/60 dark:border-slate-700"></div>
 
                     <div class="flex flex-wrap items-center gap-2 pt-1">
-                        <button id="findNearestMosqueBtn" class="flex-1 py-2.5 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs transition shadow flex items-center justify-center gap-1.5">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                            <span>ابحث عن أقرب مسجد</span>
-                        </button>
-                        <a id="openMosqueMapLink" href="https://www.google.com/maps/search/?api=1&query=mosque+near+me" target="_blank" rel="noopener" class="py-2.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition shadow flex items-center justify-center gap-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
-                            <span>فتح في خرائط Google</span>
+                        <a id="openMosqueMapLink" href="https://www.google.com/maps/dir/?api=1&destination=31.9614,35.9128&travelmode=walking" target="_blank" rel="noopener" class="flex-1 py-2.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs transition shadow flex items-center justify-center gap-1.5">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+                            <span id="goToMosqueBtnText">الذهاب للمسجد (خرائط Google)</span>
                         </a>
+                        <button id="findNearestMosqueBtn" class="py-2.5 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs transition shadow flex items-center justify-center gap-1.5">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <span>تحديث موقعي</span>
+                        </button>
                     </div>
                 </div>
 
@@ -2098,6 +2098,9 @@
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const targetView = btn.getAttribute('data-view');
+                if (targetView === 'viewPrayerTimes') {
+                    triggerFindNearestMosque(true);
+                }
                 VIEWS.forEach(v => {
                     const el = document.getElementById(v);
                     if (v === targetView) {
@@ -2422,8 +2425,195 @@
             }
         }, 1000);
 
+
+        // =====================================================================
+        // Nearest Mosque Finder (Overpass API + Haversine Distance + Google Maps)
+        // =====================================================================
+        const KNOWN_MOSQUES_FALLBACK = [
+            { name: 'مسجد الملك المؤسس عبد الله الأول (العبدلي - عمّان)', lat: 31.9614, lng: 35.9128 },
+            { name: 'المسجد الحسيني الكبير (وسط البلد - عمّان)', lat: 31.9506, lng: 35.9348 },
+            { name: 'مسجد الملك الحسين بن طلال (دابوق - عمّان)', lat: 31.9936, lng: 35.8197 },
+            { name: 'مسجد أبو درويش (جبل الأشرفية - عمّان)', lat: 31.9429, lng: 35.9397 },
+            { name: 'مسجد الجامعة الأردنية (الجبيهة - عمّان)', lat: 32.0163, lng: 35.8718 },
+            { name: 'مسجد الكالوتي (الرابية - عمّان)', lat: 31.9762, lng: 35.8858 },
+            { name: 'مسجد الشهيد الملك عبد الله (إربد)', lat: 32.5514, lng: 35.8510 },
+            { name: 'مسجد عمر بن الخطاب (الزرقاء)', lat: 32.0630, lng: 36.0912 },
+            { name: 'مسجد السلط الكبير (السلط)', lat: 32.0392, lng: 35.7272 },
+            { name: 'مسجد الحسين بن طلال (مادبا)', lat: 31.7195, lng: 35.7941 },
+            { name: 'مسجد الشريف الحسين بن علي (العقبة)', lat: 29.5279, lng: 35.0016 },
+            { name: 'المسجد الأقصى المبارك (القدس الشريف)', lat: 31.7761, lng: 35.2358 },
+            { name: 'المسجد الحرام (مكة المكرمة)', lat: 21.4225, lng: 39.8262 },
+            { name: 'المسجد النبوي الشريف (المدينة المنورة)', lat: 24.4672, lng: 39.6112 }
+        ];
+
+        function computeHaversineMeters(lat1, lon1, lat2, lon2) {
+            const R = 6371000;
+            const p1 = dtr(lat1);
+            const p2 = dtr(lat2);
+            const dp = dtr(lat2 - lat1);
+            const dl = dtr(lon2 - lon1);
+            const a = Math.sin(dp / 2) * Math.sin(dp / 2) +
+                      Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) * Math.sin(dl / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return Math.round(R * c);
+        }
+
+        function formatDistanceArabic(meters) {
+            if (meters < 1000) {
+                return `${meters} متر`;
+            }
+            return `${(meters / 1000).toFixed(1)} كم`;
+        }
+
+        function updateMapLinkForCoords(lat, lng, mosqueName) {
+            const linkEl = document.getElementById('openMosqueMapLink');
+            const btnTextEl = document.getElementById('goToMosqueBtnText');
+            if (!linkEl) return;
+            if (lat && lng) {
+                linkEl.href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=walking`;
+                if (btnTextEl && mosqueName) {
+                    btnTextEl.textContent = `الذهاب إلى ${mosqueName}`;
+                }
+            } else {
+                linkEl.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('مسجد قريب مني')}`;
+            }
+        }
+
+        async function searchNearestMosquesByCoords(userLat, userLng, isExactGps) {
+            const nameEl = document.getElementById('nearestMosqueName');
+            const subEl = document.getElementById('nearestMosqueSubtext');
+            const badgeEl = document.getElementById('mosqueDistanceBadge');
+            const listEl = document.getElementById('nearbyMosquesList');
+
+            if (!nameEl) return;
+            nameEl.textContent = 'جاري البحث عن أقرب مسجد...';
+            subEl.textContent = 'يتم الآن جلب اسم أقرب مسجد والمسافة إليه...';
+
+            try {
+                // Query Overpass API within 3500m radius for mosques
+                const overpassQuery = `[out:json][timeout:8];(node["amenity"="place_of_worship"]["religion"="muslim"](around:3500,${userLat},${userLng});way["amenity"="place_of_worship"]["religion"="muslim"](around:3500,${userLat},${userLng}););out center 30;`;
+                const url = 'https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(overpassQuery);
+                const resp = await fetch(url);
+                if (!resp.ok) throw new Error('Overpass HTTP error');
+                const data = await resp.json();
+
+                const elements = (data && data.elements) ? data.elements : [];
+                const mosques = [];
+                elements.forEach(el => {
+                    const mLat = el.lat || (el.center && el.center.lat);
+                    const mLng = el.lon || (el.center && el.center.lon);
+                    if (!mLat || !mLng) return;
+                    const tags = el.tags || {};
+                    let rawName = tags['name:ar'] || tags.name || tags['official_name:ar'] || tags.official_name || '';
+                    if (!rawName) return; // Only include mosques that have an actual name so the user sees the exact mosque name!
+                    if (!rawName.includes('مسجد') && !rawName.includes('جامع') && !rawName.includes('مصلى')) {
+                        rawName = 'مسجد ' + rawName;
+                    }
+                    const dist = computeHaversineMeters(userLat, userLng, mLat, mLng);
+                    mosques.push({ name: rawName, lat: mLat, lng: mLng, dist: dist });
+                });
+
+                mosques.sort((a, b) => a.dist - b.dist);
+
+                // Deduplicate by name
+                const uniqueMosques = [];
+                const seen = new Set();
+                for (const m of mosques) {
+                    const k = m.name.trim();
+                    if (!seen.has(k)) {
+                        seen.add(k);
+                        uniqueMosques.push(m);
+                    }
+                    if (uniqueMosques.length >= 3) break;
+                }
+
+                if (uniqueMosques.length > 0) {
+                    const closest = uniqueMosques[0];
+                    nameEl.textContent = closest.name;
+                    badgeEl.textContent = `يبعد ${formatDistanceArabic(closest.dist)}`;
+                    badgeEl.classList.remove('hidden');
+                    const walkMins = Math.max(1, Math.round(closest.dist / 80));
+                    subEl.textContent = `المسافة: ${formatDistanceArabic(closest.dist)} (${walkMins} دقائق مشياً) — اضغط الزر بالأسفل لفتح المسار في Google Maps`;
+                    updateMapLinkForCoords(closest.lat, closest.lng, closest.name);
+
+                    if (uniqueMosques.length > 1) {
+                        listEl.innerHTML = '';
+                        uniqueMosques.slice(1).forEach(m => {
+                            const itemDiv = document.createElement('div');
+                            itemDiv.className = 'flex items-center justify-between text-xs bg-white/80 dark:bg-slate-900/60 px-3 py-2 rounded-xl border border-emerald-100 dark:border-slate-700';
+                            itemDiv.innerHTML = `
+                                <span class="font-bold text-slate-800 dark:text-slate-100">🕌 ${m.name}</span>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <span class="text-[11px] font-mono text-emerald-700 dark:text-amber-300 font-bold">${formatDistanceArabic(m.dist)}</span>
+                                    <a href="https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lng}&travelmode=walking" target="_blank" rel="noopener" class="text-[11px] bg-amber-500 hover:bg-amber-400 text-slate-950 px-2.5 py-1 rounded-lg font-extrabold shadow-sm">الذهاب للمسجد</a>
+                                </div>
+                            `;
+                            listEl.appendChild(itemDiv);
+                        });
+                        listEl.classList.remove('hidden');
+                    } else {
+                        listEl.classList.add('hidden');
+                    }
+                    return;
+                }
+            } catch (err) {
+                // Fallback to offline database if offline or Overpass busy
+            }
+
+            // Offline fallback using known named mosques
+            const offlineSorted = KNOWN_MOSQUES_FALLBACK.map(m => ({
+                name: m.name,
+                lat: m.lat,
+                lng: m.lng,
+                dist: computeHaversineMeters(userLat, userLng, m.lat, m.lng)
+            })).sort((a, b) => a.dist - b.dist);
+
+            const best = offlineSorted[0];
+            nameEl.textContent = best.name;
+            badgeEl.textContent = `يبعد ${formatDistanceArabic(best.dist)}`;
+            badgeEl.classList.remove('hidden');
+            subEl.textContent = isExactGps
+                ? 'اضغط على زر «الذهاب للمسجد» لفتح الاتجاهات المباشرة في Google Maps'
+                : 'اضغط «تحديث موقعي» لتحديد أقرب مسجد لشارعك بدقة GPS';
+            updateMapLinkForCoords(best.lat, best.lng, best.name);
+        }
+
+        function triggerFindNearestMosque(silentIfDenied) {
+            if (!navigator.geolocation) {
+                searchNearestMosquesByCoords(prayerConfig.lat, prayerConfig.lng, false);
+                return;
+            }
+            if (!silentIfDenied) {
+                showToast('جاري تحديد موقعك والبحث عن أقرب مسجد...');
+            }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    prayerConfig.lat = pos.coords.latitude;
+                    prayerConfig.lng = pos.coords.longitude;
+                    prayerConfig.tz = -new Date().getTimezoneOffset() / 60.0;
+                    prayerConfig.name = `موقعي الحالي (${prayerConfig.lat.toFixed(2)}, ${prayerConfig.lng.toFixed(2)})`;
+                    saveStorage(PRAYER_LOC_STORAGE_KEY, prayerConfig);
+                    renderPrayerTimesView();
+                    searchNearestMosquesByCoords(pos.coords.latitude, pos.coords.longitude, true);
+                    if (!silentIfDenied) {
+                        showToast('تم تحديد أقرب مسجد لموقعك الحالي بنجاح');
+                    }
+                },
+                () => {
+                    searchNearestMosquesByCoords(prayerConfig.lat, prayerConfig.lng, false);
+                },
+                { enableHighAccuracy: true, timeout: 7000 }
+            );
+        }
+
+        document.getElementById('findNearestMosqueBtn').addEventListener('click', () => {
+            triggerFindNearestMosque(false);
+        });
+
         // Initialize App
         renderPrayerTimesView();
+        searchNearestMosquesByCoords(prayerConfig.lat, prayerConfig.lng, false);
+        triggerFindNearestMosque(true);
         syncSettingsUI();
         renderAdhkar();
         renderTasbihPhrases();
