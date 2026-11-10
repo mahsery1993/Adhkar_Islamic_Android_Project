@@ -403,21 +403,126 @@
 
             
 
+        
+            <!-- VIEW 4: PRAYER TIMES (مواقيت الصلاة) -->
+            <section id="viewPrayerTimes" class="hidden space-y-4">
+                <!-- Next Prayer Countdown Hero Card -->
+                <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-900 text-white p-5 shadow-lg border border-emerald-700/50">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <span class="inline-flex items-center gap-1.5 text-[11px] font-bold bg-white/15 backdrop-blur-sm px-3 py-1 rounded-full text-emerald-200">
+                                <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                                <span>الصلاة القادمة</span>
+                            </span>
+                            <h2 id="nextPrayerName" class="text-2xl sm:text-3xl font-extrabold mt-2 text-amber-300">صلاة العصر</h2>
+                            <p id="nextPrayerCountdown" class="text-sm font-mono font-bold text-emerald-100 mt-1">متبقي: --:--:--</p>
+                        </div>
+                        <div class="text-left">
+                            <p id="hijriDateDisplay" class="text-xs font-bold text-emerald-200 bg-black/25 px-3 py-1 rounded-xl border border-white/10">--</p>
+                            <p id="gregorianDateDisplay" class="text-[11px] text-emerald-300/90 mt-1 px-1">--</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-2 text-xs">
+                        <div class="flex items-center gap-1.5 text-emerald-100">
+                            <svg class="w-4 h-4 text-amber-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <span id="currentLocationLabel" class="font-bold">عمان، الأردن</span>
+                        </div>
+                        <button id="detectGpsBtn" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1.5 rounded-xl text-xs transition shadow flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>تحديد موقعي تلقائياً</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- City & Calculation Method Selector -->
+                <div class="bg-white dark:bg-slate-800/90 rounded-2xl p-4 border border-slate-200 dark:border-slate-700/80 shadow-sm space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label for="prayerCitySelect" class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">اختر المدينة / الدولة:</label>
+                            <select id="prayerCitySelect" class="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs font-bold focus:outline-none focus:border-emerald-500">
+                                <optgroup label="الأردن وفلسطين والشام">
+                                    <option value="31.9539,35.9106,3,عمان، الأردن">عمان، الأردن</option>
+                                    <option value="32.5568,35.8469,3,إربد، الأردن">إربد، الأردن</option>
+                                    <option value="32.0608,36.0942,3,الزرقاء، الأردن">الزرقاء، الأردن</option>
+                                    <option value="29.5321,35.0063,3,العقبة، الأردن">العقبة، الأردن</option>
+                                    <option value="31.7683,35.2137,2,القدس الشريف، فلسطين">القدس الشريف، فلسطين</option>
+                                    <option value="31.5017,34.4668,2,غزة، فلسطين">غزة، فلسطين</option>
+                                    <option value="33.5138,36.2765,3,دمشق، سوريا">دمشق، سوريا</option>
+                                    <option value="33.8938,35.5018,2,بيروت، لبنان">بيروت، لبنان</option>
+                                </optgroup>
+                                <optgroup label="الحرمين الشريفين والخليج">
+                                    <option value="21.4225,39.8262,3,مكة المكرمة، السعودية">مكة المكرمة، السعودية</option>
+                                    <option value="24.4672,39.6112,3,المدينة المنورة، السعودية">المدينة المنورة، السعودية</option>
+                                    <option value="24.7136,46.6753,3,الرياض، السعودية">الرياض، السعودية</option>
+                                    <option value="21.5433,39.1728,3,جدة، السعودية">جدة، السعودية</option>
+                                    <option value="26.4207,50.0888,3,الدمام، السعودية">الدمام، السعودية</option>
+                                    <option value="29.3759,47.9774,3,الكويت، الكويت">مدينة الكويت</option>
+                                    <option value="25.2854,51.5310,3,الدوحة، قطر">الدوحة، قطر</option>
+                                    <option value="26.2285,50.5860,3,المنامة، البحرين">المنامة، البحرين</option>
+                                    <option value="25.2048,55.2708,4,دبي، الإمارات">دبي، الإمارات</option>
+                                    <option value="24.4539,54.3773,4,أبوظبي، الإمارات">أبوظبي، الإمارات</option>
+                                    <option value="23.5880,58.3829,4,مسقط، عُمان">مسقط، عُمان</option>
+                                </optgroup>
+                                <optgroup label="مصر والعراق واليمن">
+                                    <option value="30.0444,31.2357,2,القاهرة، مصر">القاهرة، مصر</option>
+                                    <option value="31.2001,29.9187,2,الإسكندرية، مصر">الإسكندرية، مصر</option>
+                                    <option value="33.3152,44.3661,3,بغداد، العراق">بغداد، العراق</option>
+                                    <option value="15.3694,44.1910,3,صنعاء، اليمن">صنعاء، اليمن</option>
+                                </optgroup>
+                                <optgroup label="المغرب العربي والسودان">
+                                    <option value="15.5007,32.5599,2,الخرطوم، السودان">الخرطوم، السودان</option>
+                                    <option value="32.8872,13.1913,2,طرابلس، ليبيا">طرابلس، ليبيا</option>
+                                    <option value="36.8065,10.1815,1,تونس، تونس">تونس العاصمة</option>
+                                    <option value="36.7538,3.0588,1,الجزائر، الجزائر">الجزائر العاصمة</option>
+                                    <option value="34.0209,-6.8416,1,الرباط، المغرب">الرباط، المغرب</option>
+                                    <option value="33.5731,-7.5898,1,الدار البيضاء، المغرب">الدار البيضاء، المغرب</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="prayerMethodSelect" class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">طريقة الحساب الفقهية:</label>
+                            <select id="prayerMethodSelect" class="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs font-bold focus:outline-none focus:border-emerald-500">
+                                <option value="jordan">وزارة الأوقاف الأردنية / بلاد الشام (18° / 18°)</option>
+                                <option value="umm_al_qura">تقويم أم القرى - مكة المكرمة (18.5° / 90د)</option>
+                                <option value="mwl">رابطة العالم الإسلامي (18° / 17°)</option>
+                                <option value="egypt">الهيئة المصرية العامة للمساحة (19.5° / 17.5°)</option>
+                                <option value="karachi">جامعة العلوم الإسلامية بكراتشي (18° / 18°)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6 Prayer Times Cards List -->
+                <div id="prayerTimesListContainer" class="space-y-2.5">
+                    <!-- Populated dynamically via JS -->
+                </div>
+
+                <p class="text-[11px] text-center text-slate-400 dark:text-slate-500 pt-1">
+                    تُحسب المواقيت فلكياً بدقة عالية وتعمل تلقائياً حتى بدون اتصال بالإنترنت
+                </p>
+            </section>
+
         </main>
 
         <!-- Bottom Navigation Bar -->
         <nav class="fixed bottom-0 inset-x-0 max-w-lg mx-auto bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-3 pt-2 safe-bottom-nav flex items-center justify-around z-40">
-            <button data-view="viewAdhkar" class="nav-btn flex flex-col items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold text-xs px-3 py-1 rounded-xl">
+            <button data-view="viewAdhkar" class="nav-btn flex flex-col items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold text-xs px-2.5 py-1 rounded-xl">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                 <span>الأذكار</span>
             </button>
-            <button data-view="viewTasbih" class="nav-btn flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 font-medium text-xs px-3 py-1 rounded-xl">
+            <button data-view="viewPrayerTimes" class="nav-btn flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 font-medium text-xs px-2.5 py-1 rounded-xl">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span>مواقيت الصلاة</span>
+            </button>
+            <button data-view="viewTasbih" class="nav-btn flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 font-medium text-xs px-2.5 py-1 rounded-xl">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 <span>المسبحة</span>
             </button>
-            <button data-view="viewSettings" class="nav-btn flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 font-medium text-xs px-3 py-1 rounded-xl">
+            <button data-view="viewSettings" class="nav-btn flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 font-medium text-xs px-2.5 py-1 rounded-xl">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                <span>إعدادات المنبه</span>
+                <span>المنبه</span>
             </button>
 
         </nav>
@@ -1943,7 +2048,7 @@
         });
 
         // Bottom Navigation Switching
-        const VIEWS = ['viewAdhkar', 'viewTasbih', 'viewSettings'];
+        const VIEWS = ['viewAdhkar', 'viewPrayerTimes', 'viewTasbih', 'viewSettings'];
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const targetView = btn.getAttribute('data-view');
@@ -1979,7 +2084,246 @@
             }
         });
 
+        
+        // =====================================================================
+        // Astronomical Offline/Online Prayer Times Calculator Engine
+        // =====================================================================
+        const PRAYER_LOC_STORAGE_KEY = 'adhkar_prayer_loc_v1';
+        const defaultPrayerLoc = {
+            lat: 31.9539,
+            lng: 35.9106,
+            tz: 3,
+            name: 'عمان، الأردن',
+            method: 'jordan',
+            cityKey: '31.9539,35.9106,3,عمان، الأردن'
+        };
+        const prayerConfig = Object.assign({}, defaultPrayerLoc, loadStorage(PRAYER_LOC_STORAGE_KEY, {}));
+
+        function dtr(d) { return (d * Math.PI) / 180.0; }
+        function rtd(r) { return (r * 180.0) / Math.PI; }
+        function fixHour(a) {
+            a = a - 24.0 * Math.floor(a / 24.0);
+            return a < 0 ? a + 24.0 : a;
+        }
+
+        function computeDailyPrayerTimes(dateObj, lat, lng, tz, methodKey) {
+            const year = dateObj.getFullYear();
+            const month = dateObj.getMonth() + 1;
+            const day = dateObj.getDate();
+
+            // Julian Date calculation
+            let y = year, m = month;
+            if (m <= 2) { y -= 1; m += 12; }
+            const A = Math.floor(y / 100);
+            const B = 2 - A + Math.floor(A / 4);
+            const JD = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + B - 1524.5;
+
+            const d = JD - 2451545.0;
+            const g = (357.529 + 0.98560028 * d) % 360;
+            const q = (280.459 + 0.98564736 * d) % 360;
+            const L = (q + 1.915 * Math.sin(dtr(g)) + 0.020 * Math.sin(dtr(2 * g))) % 360;
+            const e = 23.439 - 0.00000036 * d;
+            const RA = rtd(Math.atan2(Math.cos(dtr(e)) * Math.sin(dtr(L)), Math.cos(dtr(L)))) / 15.0;
+            const decl = rtd(Math.asin(Math.sin(dtr(e)) * Math.sin(dtr(L))));
+            let EqT = q / 15.0 - fixHour(RA);
+            if (EqT > 12) EqT -= 24;
+            if (EqT < -12) EqT += 24;
+
+            const noon = fixHour(12.0 - EqT + tz - lng / 15.0);
+
+            function sunAngleTime(angle, isMorning) {
+                const num = -Math.sin(dtr(angle)) - Math.sin(dtr(decl)) * Math.sin(dtr(lat));
+                const den = Math.cos(dtr(decl)) * Math.cos(dtr(lat));
+                const val = Math.max(-1, Math.min(1, num / den));
+                const diff = rtd(Math.acos(val)) / 15.0;
+                return noon + (isMorning ? -diff : diff);
+            }
+
+            function asrTime(shadowFactor) {
+                const angle = -rtd(Math.atan(1.0 / (shadowFactor + Math.tan(Math.abs(dtr(lat - decl))))));
+                return sunAngleTime(angle, false);
+            }
+
+            const methods = {
+                jordan: { fajrAngle: 18.0, ishaAngle: 18.0, ishaMins: 0 },
+                umm_al_qura: { fajrAngle: 18.5, ishaAngle: 0, ishaMins: 90 },
+                mwl: { fajrAngle: 18.0, ishaAngle: 17.0, ishaMins: 0 },
+                egypt: { fajrAngle: 19.5, ishaAngle: 17.5, ishaMins: 0 },
+                karachi: { fajrAngle: 18.0, ishaAngle: 18.0, ishaMins: 0 }
+            };
+            const mCfg = methods[methodKey] || methods.jordan;
+
+            const fajr = sunAngleTime(mCfg.fajrAngle, true);
+            const sunrise = sunAngleTime(0.833, true);
+            const dhuhr = noon + (2.0 / 60.0); // 2 min precaution after zenith
+            const asr = asrTime(1); // Shafi'i / Majority standard
+            const maghrib = sunAngleTime(0.833, false) + (1.0 / 60.0);
+            const isha = mCfg.ishaMins > 0 ? (maghrib + mCfg.ishaMins / 60.0) : sunAngleTime(mCfg.ishaAngle, false);
+
+            return [
+                { key: 'fajr', name: 'الفجر', icon: '🌌', hours: fajr },
+                { key: 'sunrise', name: 'الشروق', icon: '🌅', hours: sunrise },
+                { key: 'dhuhr', name: 'الظهر', icon: '☀️', hours: dhuhr },
+                { key: 'asr', name: 'العصر', icon: '🌤️', hours: asr },
+                { key: 'maghrib', name: 'المغرب', icon: '🌇', hours: maghrib },
+                { key: 'isha', name: 'العشاء', icon: '🌙', hours: isha }
+            ];
+        }
+
+        function formatHours12(decHours) {
+            const totalMinutes = Math.round(fixHour(decHours) * 60);
+            let h = Math.floor(totalMinutes / 60) % 24;
+            const m = totalMinutes % 60;
+            const period = h >= 12 ? 'م' : 'ص';
+            let h12 = h % 12;
+            if (h12 === 0) h12 = 12;
+            return `${String(h12).padStart(2, '0')}:${String(m).padStart(2, '0')} ${period}`;
+        }
+
+        function updateDatesHeader() {
+            const now = new Date();
+            try {
+                const hijri = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
+                    day: 'numeric', month: 'long', year: 'numeric'
+                }).format(now);
+                document.getElementById('hijriDateDisplay').textContent = hijri;
+            } catch (e) {
+                document.getElementById('hijriDateDisplay').textContent = '';
+            }
+            try {
+                const greg = new Intl.DateTimeFormat('ar-JO', {
+                    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+                }).format(now);
+                document.getElementById('gregorianDateDisplay').textContent = greg;
+            } catch (e) {}
+        }
+
+        function renderPrayerTimesView() {
+            const now = new Date();
+            const schedule = computeDailyPrayerTimes(
+                now,
+                prayerConfig.lat,
+                prayerConfig.lng,
+                prayerConfig.tz,
+                prayerConfig.method
+            );
+
+            document.getElementById('currentLocationLabel').textContent = prayerConfig.name;
+            updateDatesHeader();
+
+            const nowHours = now.getHours() + now.getMinutes() / 60.0 + now.getSeconds() / 3600.0;
+            let nextPrayer = null;
+            for (let i = 0; i < schedule.length; i++) {
+                if (schedule[i].hours > nowHours) {
+                    nextPrayer = schedule[i];
+                    break;
+                }
+            }
+            let diffHours = 0;
+            if (!nextPrayer) {
+                nextPrayer = schedule[0]; // Next day's Fajr
+                diffHours = (24.0 - nowHours) + nextPrayer.hours;
+            } else {
+                diffHours = nextPrayer.hours - nowHours;
+            }
+
+            const totalSecs = Math.max(0, Math.floor(diffHours * 3600));
+            const remH = Math.floor(totalSecs / 3600);
+            const remM = Math.floor((totalSecs % 3600) / 60);
+            const remS = totalSecs % 60;
+
+            const nextTitlePrefix = nextPrayer.key === 'sunrise' ? 'موعد' : 'صلاة';
+            document.getElementById('nextPrayerName').textContent = `${nextTitlePrefix} ${nextPrayer.name}`;
+            document.getElementById('nextPrayerCountdown').textContent =
+                `متبقي: ${String(remH).padStart(2, '0')}:${String(remM).padStart(2, '0')}:${String(remS).padStart(2, '0')}`;
+
+            const listEl = document.getElementById('prayerTimesListContainer');
+            listEl.innerHTML = '';
+            schedule.forEach(item => {
+                const isNext = item.key === nextPrayer.key;
+                const row = document.createElement('div');
+                row.className = `flex items-center justify-between px-4 py-3 rounded-2xl border transition ${
+                    isNext
+                        ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 shadow-sm'
+                        : 'bg-white dark:bg-slate-800/90 border-slate-200 dark:border-slate-700/80'
+                }`;
+                row.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">${item.icon}</span>
+                        <div>
+                            <span class="font-extrabold text-sm ${isNext ? 'text-emerald-800 dark:text-emerald-300' : 'text-slate-800 dark:text-slate-100'}">${item.name}</span>
+                            ${isNext ? '<span class="mr-2 text-[10px] bg-amber-500 text-slate-950 font-bold px-2 py-0.5 rounded-full">القادمة</span>' : ''}
+                        </div>
+                    </div>
+                    <span class="font-mono font-bold text-sm ${isNext ? 'text-emerald-700 dark:text-amber-300' : 'text-slate-700 dark:text-slate-200'}">${formatHours12(item.hours)}</span>
+                `;
+                listEl.appendChild(row);
+            });
+        }
+
+        // Sync selectors for Prayer Times
+        const citySel = document.getElementById('prayerCitySelect');
+        const methodSel = document.getElementById('prayerMethodSelect');
+        if (citySel && prayerConfig.cityKey) {
+            citySel.value = prayerConfig.cityKey;
+        }
+        if (methodSel && prayerConfig.method) {
+            methodSel.value = prayerConfig.method;
+        }
+
+        citySel.addEventListener('change', (e) => {
+            const parts = e.target.value.split(',');
+            if (parts.length >= 4) {
+                prayerConfig.lat = parseFloat(parts[0]);
+                prayerConfig.lng = parseFloat(parts[1]);
+                prayerConfig.tz = parseFloat(parts[2]);
+                prayerConfig.name = parts.slice(3).join(',');
+                prayerConfig.cityKey = e.target.value;
+                saveStorage(PRAYER_LOC_STORAGE_KEY, prayerConfig);
+                renderPrayerTimesView();
+                showToast(`تم ضبط المواقيت لمدينة: ${prayerConfig.name}`);
+            }
+        });
+
+        methodSel.addEventListener('change', (e) => {
+            prayerConfig.method = e.target.value;
+            saveStorage(PRAYER_LOC_STORAGE_KEY, prayerConfig);
+            renderPrayerTimesView();
+            showToast('تم تحديث طريقة الحساب الفقهية');
+        });
+
+        document.getElementById('detectGpsBtn').addEventListener('click', () => {
+            if (!navigator.geolocation) {
+                showToast('يمكنك اختيار مدينتك مباشرة من القائمة');
+                return;
+            }
+            showToast('جاري تحديد موقعك...');
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    prayerConfig.lat = pos.coords.latitude;
+                    prayerConfig.lng = pos.coords.longitude;
+                    prayerConfig.tz = -new Date().getTimezoneOffset() / 60.0;
+                    prayerConfig.name = `موقعي الحالي (${prayerConfig.lat.toFixed(2)}, ${prayerConfig.lng.toFixed(2)})`;
+                    saveStorage(PRAYER_LOC_STORAGE_KEY, prayerConfig);
+                    renderPrayerTimesView();
+                    showToast('تم تحديث مواقيت الصلاة حسب موقعك الحالي بدقة');
+                },
+                () => {
+                    showToast('تعذر جلب الموقع تلقائياً، اختر مدينتك من القائمة');
+                },
+                { timeout: 7000 }
+            );
+        });
+
+        setInterval(() => {
+            const ptSec = document.getElementById('viewPrayerTimes');
+            if (ptSec && !ptSec.classList.contains('hidden')) {
+                renderPrayerTimesView();
+            }
+        }, 1000);
+
         // Initialize App
+        renderPrayerTimesView();
         syncSettingsUI();
         renderAdhkar();
         renderTasbihPhrases();
