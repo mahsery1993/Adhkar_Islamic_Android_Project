@@ -32,7 +32,7 @@
             </intent-filter>
         </activity>
 
-        <!-- مستقبل منبه الأذكار الدوري في الخلفية حتى بعد إغلاق التطبيق كلياً -->
+        <!-- مستقبل منبه الأذكار الدوري ومنبه أذكار الصباح والمساء اليومي في الخلفية -->
         <receiver
             android:name=".DhikrAlarmReceiver"
             android:enabled="true"
@@ -42,6 +42,8 @@
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
                 <action android:name="com.islamic.adhkar.ACTION_SHOW_DHIKR" />
+                <action android:name="com.islamic.adhkar.ACTION_MORNING_ADHKAR" />
+                <action android:name="com.islamic.adhkar.ACTION_EVENING_ADHKAR" />
             </intent-filter>
         </receiver>
 
