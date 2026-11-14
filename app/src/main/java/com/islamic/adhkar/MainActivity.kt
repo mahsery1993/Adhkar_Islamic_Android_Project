@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.Location
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -30,7 +32,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // ضبط ألوان شريط الحالة العلوي وشريط التنقل السفلي لمنع التداخل
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.statusBarColor = Color.parseColor("#064E3B")
@@ -54,9 +55,9 @@ class MainActivity : AppCompatActivity() {
             allowContentAccess = true
             mediaPlaybackRequiresUserGesture = false
             cacheMode = WebSettings.LOAD_DEFAULT
+            setGeolocationEnabled(true)
         }
 
-        webView.settings.setGeolocationEnabled(true)
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                 if (url != null && (url.startsWith("https://www.google.com/maps") || url.startsWith("geo:"))) {
@@ -68,6 +69,7 @@ class MainActivity : AppCompatActivity() {
                 return false
             }
         }
+
         webView.webChromeClient = object : WebChromeClient() {
             override fun onGeolocationPermissionsShowPrompt(
                 origin: String?,
@@ -92,18 +94,15 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        webView.addJavascriptInterface(AndroidBridge(this), "AndroidBridge")
 
-        // تحميل التصميم الاحترافي الكامل من مجلد assets
+        webView.addJavascriptInterface(AndroidBridge(this), "AndroidBridge")
         webView.loadUrl("file:///android_asset/adhkar_islamic_app.html")
 
-        // تفعيل الجدولة الافتراضية في الخلفية عند التشغيل
         ensureBackgroundReminderScheduled()
     }
 
     override fun onStop() {
         super.onStop()
-        // تأكيد استمرار جدولة منبه الخلفية عند الخروج من التطبيق أو إغلاقه
         ensureBackgroundReminderScheduled()
     }
 
@@ -113,6 +112,7 @@ class MainActivity : AppCompatActivity() {
             val savedMin = prefs.getInt("interval_minutes", 30)
             DhikrAlarmReceiver.scheduleNextReminder(this, savedMin)
         }
+        DhikrAlarmReceiver.scheduleAllDailyAlarmsFromPrefs(this)
     }
 
     inner class AndroidBridge(private val context: Context) {
@@ -148,6 +148,66 @@ class MainActivity : AppCompatActivity() {
         }
 
         @JavascriptInterface
+        fun saveDailyAlarms(
+            morningEnabled: Boolean,
+            morningTime: String,
+            eveningEnabled: Boolean,
+            eveningTime: String
+        ) {
+            val prefs = context.getSharedPreferences("adhkar_prefs", Context.MODE_PRIVATE)
+            prefs.edit()
+                .putBoolean("morning_alarm_enabled", morningEnabled)
+                .putString("morning_alarm_time", morningTime)
+                .putBoolean("evening_alarm_enabled", eveningEnabled)
+                .putString("evening_alarm_time", eveningTime)
+                .apply()
+
+            DhikrAlarmReceiver.scheduleAllDailyAlarmsFromPrefs(context)
+        }
+
+        @JavascriptInterface
+        fun getDeviceLocation(): String {
+            try {
+                if (ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    ActivityCompat.requestPermissions(
+                        this@MainActivity,
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        ),
+                        102
+                    )
+                    return ""
+                }
+                val lm = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                val providers = listOf(
+                    LocationManager.GPS_PROVIDER,
+                    LocationManager.NETWORK_PROVIDER,
+                    LocationManager.PASSIVE_PROVIDER
+                )
+                var bestLoc: Location? = null
+                for (p in providers) {
+                    val loc = lm.getLastKnownLocation(p) ?: continue
+                    if (bestLoc == null || loc.accuracy < bestLoc.accuracy) {
+                        bestLoc = loc
+                    }
+                }
+                if (bestLoc != null) {
+                    return "${bestLoc.latitude},${bestLoc.longitude}"
+                }
+            } catch (e: Exception) {}
+            return ""
+        }
+
+        @JavascriptInterface
         fun triggerNativeNotification(categoryTitle: String, text: String, reward: String) {
             val item = DhikrItem("custom", "custom", categoryTitle, text, 1, reward)
             NotificationHelper.showDhikrPopupNotification(context, item)
@@ -165,9 +225,7 @@ class MainActivity : AppCompatActivity() {
                         }
                         startActivity(intent)
                     }
-                } catch (e: Exception) {
-                    // Ignore if device does not support this screen
-                }
+                } catch (e: Exception) {}
             }
         }
     }
