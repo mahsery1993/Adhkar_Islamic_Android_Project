@@ -441,44 +441,24 @@
                     </div>
                 </div>
 
-                <!-- Top 3 Nearest Mosques Card (أقرب 3 مساجد لموقعك الحالي مع زر الذهاب عبر Google Maps لكل مسجد) -->
+                <!-- Nearest Mosques Direct Google Maps Card (أقرب المساجد لموقعي الحالي على خرائط Google) -->
                 <div class="bg-gradient-to-br from-emerald-50 via-teal-50/80 to-amber-50/50 dark:from-slate-800 dark:via-slate-800/95 dark:to-emerald-950/40 rounded-2xl p-4 border border-emerald-200/90 dark:border-emerald-800/60 shadow-sm space-y-3">
-                    <div class="flex items-center justify-between gap-2">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-10 h-10 rounded-2xl bg-emerald-700 text-white flex items-center justify-center text-lg shadow shrink-0">
-                                🕌
-                            </div>
-                            <div>
-                                <div class="flex items-center gap-1.5">
-                                    <h3 class="text-sm font-extrabold text-emerald-950 dark:text-white">أقرب 3 مساجد لموقعك الحالي</h3>
-                                    <span id="mosqueStatusBadge" class="text-[10px] font-bold bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full">حسب الأقرب بالمتر</span>
-                                </div>
-                                <p id="nearestMosqueSubtext" class="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">
-                                    يشمل مساجد الأحياء والمساجد الصغيرة والمصليات الأقرب لموقعك الفعلي
-                                </p>
-                            </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-2xl bg-emerald-700 text-white flex items-center justify-center text-xl shadow shrink-0">
+                            🕌
                         </div>
-                        <button id="findNearestMosqueBtn" class="py-2 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs transition shadow flex items-center gap-1 shrink-0">
-                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                            <span>تحديث موقعي</span>
-                        </button>
+                        <div>
+                            <h3 class="text-sm font-extrabold text-emerald-950 dark:text-white">أقرب المساجد لموقعي الحالي</h3>
+                            <p class="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">
+                                يفتح تطبيق خرائط Google مباشرة لاستعراض أقرب المساجد والمصليات لموقعك الفعلي
+                            </p>
+                        </div>
                     </div>
 
-                    <!-- Container for the 3 Closest Mosques Cards -->
-                    <div id="topThreeMosquesContainer" class="space-y-2 pt-1">
-                        <!-- Dynamically populated with the 3 closest mosques -->
-                    </div>
-
-                    <!-- Interactive Google Maps Live Mosque Locator (يعرض كافة مساجد Google Maps المحيطة بك مباشرة) -->
-                    <div class="pt-2 border-t border-emerald-200/70 dark:border-slate-700 space-y-2">
-                        <div class="flex items-center justify-between text-[11px]">
-                            <span class="font-extrabold text-emerald-900 dark:text-emerald-300">🗺️ خريطة مساجد Google Maps المحيطة بموقعك:</span>
-                            <a id="openFullGoogleMapsMosquesBtn" href="https://www.google.com/maps/search/?api=1&query=%D9%85%D8%B3%D8%AC%D8%AF" target="_blank" rel="noopener" class="font-extrabold text-amber-600 dark:text-amber-400 hover:underline">فتح في تطبيق Google Maps ↗</a>
-                        </div>
-                        <div class="rounded-2xl overflow-hidden border border-emerald-300/80 dark:border-slate-700 shadow-inner bg-slate-100 dark:bg-slate-900 h-48 relative">
-                            <iframe id="googleMapsMosqueIframe" title="خريطة المساجد القريبة من موقعك" src="https://maps.google.com/maps?q=%D9%85%D8%B3%D8%AC%D8%AF&ll=31.9539,35.9106&z=16&hl=ar&output=embed" class="w-full h-full border-0" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                        </div>
-                    </div>
+                    <a id="openGoogleMapsNearestMosquesBtn" href="https://www.google.com/maps/search/?api=1&query=%D9%85%D8%B3%D8%AC%D8%AF+%D9%82%D8%B1%D9%8A%D8%A8+%D9%85%D9%86%D9%8A" target="_blank" rel="noopener" class="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs sm:text-sm transition shadow-md flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span>أقرب مساجد لموقعي الحالي على خرائط Google</span>
+                    </a>
                 </div>
 
                 <!-- 6 Prayer Times Cards List -->
@@ -1832,9 +1812,18 @@
             if (navigator.vibrate) navigator.vibrate([100, 60, 100]);
 
             // Send Native Android Notification if running inside APK WebView
-            if (window.AndroidBridge && window.AndroidBridge.triggerNativeNotification) {
+            if (window.AndroidBridge) {
                 try {
-                    window.AndroidBridge.triggerNativeNotification(item.categoryLabel, item.text, item.reward);
+                    if (window.AndroidBridge.triggerNativeNotificationWithCategory) {
+                        window.AndroidBridge.triggerNativeNotificationWithCategory(
+                            item.category || 'morning',
+                            item.categoryLabel,
+                            item.text,
+                            item.reward
+                        );
+                    } else if (window.AndroidBridge.triggerNativeNotification) {
+                        window.AndroidBridge.triggerNativeNotification(item.categoryLabel, item.text, item.reward);
+                    }
                 } catch (e) {}
             } else if ('Notification' in window && Notification.permission === 'granted') {
                 try {
@@ -1897,24 +1886,75 @@
             document.getElementById('headsUpBanner').classList.add('hidden');
         });
 
+        // Open specific Adhkar category directly when user taps a notification (Native or In-App)
+        window.openCategoryFromNotification = function(cat) {
+            const validCats = ['morning', 'evening', 'jawami', 'prayer', 'sleep', 'ruqyah', 'custom'];
+            let targetCat = (cat || '').trim().toLowerCase();
+            if (!validCats.includes(targetCat)) {
+                if (targetCat.includes('مساء') || targetCat.includes('evening')) targetCat = 'evening';
+                else if (targetCat.includes('صباح') || targetCat.includes('morning')) targetCat = 'morning';
+                else if (targetCat.includes('صلاة') || targetCat.includes('prayer')) targetCat = 'prayer';
+                else if (targetCat.includes('نوم') || targetCat.includes('sleep')) targetCat = 'sleep';
+                else if (targetCat.includes('رقية') || targetCat.includes('ruqyah')) targetCat = 'ruqyah';
+                else if (targetCat.includes('جوامع') || targetCat.includes('jawami')) targetCat = 'jawami';
+                else return;
+            }
+            state.currentCategory = targetCat;
+            state.searchQuery = '';
+            state.onlyFavorites = false;
+            const searchInp = document.getElementById('searchInput');
+            if (searchInp) searchInp.value = '';
+            switchMainView('viewAdhkar');
+            updateCategoryTabStyles();
+            renderAdhkar();
+            const banner = document.getElementById('headsUpBanner');
+            if (banner) banner.classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        function checkPendingNotificationCategory() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const urlCat = params.get('cat');
+                if (urlCat) {
+                    window.openCategoryFromNotification(urlCat);
+                }
+            } catch (e) {}
+            if (window.AndroidBridge && window.AndroidBridge.consumePendingCategory) {
+                try {
+                    const pendingCat = window.AndroidBridge.consumePendingCategory();
+                    if (pendingCat && pendingCat.trim() !== '') {
+                        window.openCategoryFromNotification(pendingCat.trim());
+                    }
+                } catch (e) {}
+            }
+        }
+
+        document.getElementById('popupDhikrText').addEventListener('click', () => {
+            if (state.currentPopupDhikr && state.currentPopupDhikr.category) {
+                window.openCategoryFromNotification(state.currentPopupDhikr.category);
+            }
+        });
+
         document.getElementById('popupReadBtn').addEventListener('click', () => {
             if (state.currentPopupDhikr) {
-                if (state.currentPopupDhikr.isMorningEveningReminder) {
-                    state.currentCategory = state.currentPopupDhikr.category;
-                    switchMainView('viewAdhkar');
-                    updateCategoryTabStyles();
-                    renderAdhkar();
-                    document.getElementById('headsUpBanner').classList.add('hidden');
-                    showToast(state.currentCategory === 'morning' ? 'تم فتح قسم أذكار الصباح' : 'تم فتح قسم أذكار المساء');
-                    return;
+                const targetCat = state.currentPopupDhikr.category || 'morning';
+                if (!state.currentPopupDhikr.isMorningEveningReminder && state.currentPopupDhikr.id) {
+                    const id = state.currentPopupDhikr.id;
+                    state.counts[id] = (state.counts[id] || 0) + 1;
+                    saveStorage('adhkar_counts_v1', state.counts);
                 }
-                const id = state.currentPopupDhikr.id;
-                state.counts[id] = (state.counts[id] || 0) + 1;
-                saveStorage('adhkar_counts_v1', state.counts);
-                renderAdhkar();
+                window.openCategoryFromNotification(targetCat);
+                showToast(
+                    targetCat === 'evening'
+                        ? 'تم فتح قائمة أذكار المساء'
+                        : targetCat === 'morning'
+                        ? 'تم فتح قائمة أذكار الصباح'
+                        : 'تقبل الله ذكرك!'
+                );
+                return;
             }
             document.getElementById('headsUpBanner').classList.add('hidden');
-            showToast('تقبل الله ذكرك!');
         });
 
         document.getElementById('popupNextBtn').addEventListener('click', () => {
@@ -2178,6 +2218,7 @@
                     renderTasbihPhrases();
                 }
                 checkDailyMorningEveningAlarms();
+                checkPendingNotificationCategory();
             }
         });
         window.addEventListener('focus', () => {
@@ -2187,6 +2228,7 @@
                 renderTasbihPhrases();
             }
             checkDailyMorningEveningAlarms();
+            checkPendingNotificationCategory();
         });
 
         // =====================================================================
@@ -2429,7 +2471,7 @@
                 saveStorage(PRAYER_LOC_STORAGE_KEY, prayerConfig);
                 renderPrayerTimesView();
                 showToast(`تم ضبط المواقيت لمدينة: ${prayerConfig.name}`);
-                searchNearestMosquesByCoords(prayerConfig.lat, prayerConfig.lng, false);
+                
             }
         });
 
@@ -2558,341 +2600,18 @@
             return fallbackCity;
         }
 
+        // =============================================================        // =====================================================================
+        // Direct Google Maps Nearest Mosques Opener & GPS City Name Detection
         // =====================================================================
-        // Top 3 Physically Closest Mosques Engine (Google Maps + Native Geocoder + Photon + Overpass)
-        // =====================================================================
-        let currentDiscoveredMosques = [];
-
-        function formatDistanceArabic(meters) {
-            if (meters < 1000) {
-                return `${meters} متر`;
-            }
-            return `${(meters / 1000).toFixed(2)} كم`;
-        }
-
-        function updateGoogleMapsIframeAndLink(userLat, userLng) {
-            const iframeEl = document.getElementById('googleMapsMosqueIframe');
-            if (iframeEl) {
-                const newSrc = `https://maps.google.com/maps?q=${encodeURIComponent('مسجد')}&ll=${userLat},${userLng}&z=16&hl=ar&output=embed`;
-                if (iframeEl.getAttribute('src') !== newSrc) {
-                    iframeEl.setAttribute('src', newSrc);
-                }
-            }
-            const fullBtn = document.getElementById('openFullGoogleMapsMosquesBtn');
-            if (fullBtn) {
-                fullBtn.href = `https://www.google.com/maps/search/${encodeURIComponent('مسجد')}/@${userLat},${userLng},17z`;
-            }
-        }
-
-        async function fetchOverpassMosquesWithFailover(userLat, userLng) {
-            const overpassQuery = `[out:json][timeout:9];(node["amenity"="place_of_worship"](around:3000,${userLat},${userLng});way["amenity"="place_of_worship"](around:3000,${userLat},${userLng});relation["amenity"="place_of_worship"](around:3000,${userLat},${userLng});node["building"="mosque"](around:3000,${userLat},${userLng});way["building"="mosque"](around:3000,${userLat},${userLng});node["amenity"="mosque"](around:3000,${userLat},${userLng});way["amenity"="mosque"](around:3000,${userLat},${userLng});node["name"~"مسجد|جامع|مصلى"](around:3000,${userLat},${userLng});way["name"~"مسجد|جامع|مصلى"](around:3000,${userLat},${userLng}););out center;`;
-
-            const endpoints = [
-                'https://overpass-api.de/api/interpreter?data=',
-                'https://overpass.kumi.systems/api/interpreter?data=',
-                'https://lz4.overpass-api.de/api/interpreter?data='
-            ];
-
-            for (const base of endpoints) {
+        document.getElementById('openGoogleMapsNearestMosquesBtn').addEventListener('click', (e) => {
+            if (window.AndroidBridge && window.AndroidBridge.openNearestMosquesInGoogleMaps) {
+                e.preventDefault();
                 try {
-                    const controller = new AbortController();
-                    const timer = setTimeout(() => controller.abort(), 5500);
-                    const resp = await fetch(base + encodeURIComponent(overpassQuery), { signal: controller.signal });
-                    clearTimeout(timer);
-                    if (resp.ok) {
-                        const data = await resp.json();
-                        if (data && Array.isArray(data.elements) && data.elements.length > 0) {
-                            return data.elements;
-                        }
-                    }
-                } catch (e) {}
-            }
-            return [];
-        }
-
-        async function fetchPhotonNearbyMosques(userLat, userLng) {
-            const results = [];
-            const queries = ['مسجد', 'جامع', 'مصلى', 'mosque'];
-            try {
-                const promises = queries.map(async (q) => {
-                    try {
-                        const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&lat=${userLat}&lon=${userLng}&limit=15`;
-                        const resp = await fetch(url);
-                        if (resp.ok) {
-                            const data = await resp.json();
-                            if (data && Array.isArray(data.features)) {
-                                data.features.forEach(f => {
-                                    if (!f.geometry || !Array.isArray(f.geometry.coordinates)) return;
-                                    const mLng = parseFloat(f.geometry.coordinates[0]);
-                                    const mLat = parseFloat(f.geometry.coordinates[1]);
-                                    const props = f.properties || {};
-                                    const rawName = props.name || '';
-                                    if (!rawName) return;
-                                    const dist = computeHaversineMeters(userLat, userLng, mLat, mLng);
-                                    if (dist <= 5000 && dist >= 5) {
-                                        let cleanName = rawName.trim();
-                                        if (!cleanName.includes('مسجد') && !cleanName.includes('جامع') && !cleanName.includes('مصلى')) {
-                                            cleanName = 'مسجد ' + cleanName;
-                                        }
-                                        results.push({ name: cleanName, lat: mLat, lng: mLng, dist: dist });
-                                    }
-                                });
-                            }
-                        }
-                    } catch (e) {}
-                });
-                await Promise.all(promises);
-            } catch (e) {}
-            return results;
-        }
-
-        async function fetchNominatimNearbyMosques(userLat, userLng) {
-            const delta = 0.02;
-            const viewbox = `${userLng - delta},${userLat + delta},${userLng + delta},${userLat - delta}`;
-            const results = [];
-            try {
-                const queries = ['مسجد', 'جامع'];
-                for (const q of queries) {
-                    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&bounded=1&viewbox=${viewbox}&limit=20&accept-language=ar`;
-                    const resp = await fetch(url, { headers: { 'Accept': 'application/json' } });
-                    if (resp.ok) {
-                        const arr = await resp.json();
-                        if (Array.isArray(arr)) {
-                            arr.forEach(item => {
-                                const mLat = parseFloat(item.lat);
-                                const mLng = parseFloat(item.lon);
-                                if (!isNaN(mLat) && !isNaN(mLng)) {
-                                    const firstPart = (item.display_name || '').split('،')[0].split(',')[0].trim();
-                                    const dist = computeHaversineMeters(userLat, userLng, mLat, mLng);
-                                    if (dist >= 5 && dist <= 5000) {
-                                        results.push({
-                                            name: item.name || firstPart || 'مسجد قريب',
-                                            lat: mLat,
-                                            lng: mLng,
-                                            dist: dist
-                                        });
-                                    }
-                                }
-                            });
-                        }
-                    }
-                }
-            } catch (e) {}
-            return results;
-        }
-
-        async function resolveMosqueNameIfUnnamed(mLat, mLng, rankIndex) {
-            try {
-                const resp = await fetch(
-                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${mLat}&lon=${mLng}&zoom=18&accept-language=ar`
-                );
-                if (resp.ok) {
-                    const data = await resp.json();
-                    if (data && data.name) {
-                        return data.name;
-                    }
-                    const addr = (data && data.address) ? data.address : {};
-                    const amenity = addr.amenity || addr.place_of_worship || '';
-                    if (amenity) return amenity;
-                    const road = addr.road || addr.neighbourhood || addr.suburb || addr.quarter || '';
-                    if (road) return `مسجد الحي (${road})`;
-                }
-            } catch (e) {}
-            return `مسجد قريب منك (${rankIndex})`;
-        }
-
-        function deduplicateAndSortMosques(candidates, userLat, userLng) {
-            const valid = [];
-            candidates.forEach(m => {
-                if (!m || isNaN(m.lat) || isNaN(m.lng)) return;
-                const dist = computeHaversineMeters(userLat, userLng, m.lat, m.lng);
-                if (dist < 3 || dist > 15000) return; // Ignore 0m self-coordinate artifacts
-                valid.push({
-                    name: (m.name || '').trim(),
-                    lat: m.lat,
-                    lng: m.lng,
-                    dist: dist
-                });
-            });
-
-            // Sort strictly ascending by physical distance in meters (closest first!)
-            valid.sort((a, b) => a.dist - b.dist);
-
-            // Deduplicate mosques within 25 meters of each other
-            const unique = [];
-            for (const m of valid) {
-                const existing = unique.find(u => computeHaversineMeters(u.lat, u.lng, m.lat, m.lng) < 25);
-                if (existing) {
-                    if ((!existing.name || existing.name.startsWith('مسجد الحي') || existing.name.startsWith('مسجد قريب')) && m.name) {
-                        existing.name = m.name;
-                    }
-                } else {
-                    unique.push(m);
-                }
-            }
-            return unique;
-        }
-
-        function renderTopThreeMosquesCards(mosquesList, userLat, userLng) {
-            const container = document.getElementById('topThreeMosquesContainer');
-            if (!container) return;
-            container.innerHTML = '';
-
-            const rankLabels = [
-                'الأقرب إليك فعلياً (#1)',
-                'ثاني أقرب مسجد (#2)',
-                'ثالث أقرب مسجد (#3)'
-            ];
-
-            mosquesList.slice(0, 3).forEach((m, idx) => {
-                const walkMins = Math.max(1, Math.round(m.dist / 80));
-                const isFirst = idx === 0;
-                const mapUrl = `https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLng}&destination=${m.lat},${m.lng}&destination_place_id=&travelmode=walking`;
-
-                const card = document.createElement('div');
-                card.className = isFirst
-                    ? 'p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-emerald-500 shadow-md space-y-2.5'
-                    : 'p-3 rounded-2xl bg-white/85 dark:bg-slate-900/75 border border-emerald-200/80 dark:border-slate-700 space-y-2';
-
-                card.innerHTML = `
-                    <div class="flex items-start justify-between gap-2">
-                        <div class="flex items-start gap-2.5">
-                            <span class="w-7 h-7 rounded-xl font-mono font-extrabold text-xs flex items-center justify-center shrink-0 ${
-                                isFirst
-                                    ? 'bg-emerald-700 text-white shadow'
-                                    : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
-                            }">${idx + 1}</span>
-                            <div>
-                                <div class="flex items-center gap-1.5 flex-wrap">
-                                    <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
-                                        isFirst
-                                            ? 'bg-amber-500 text-slate-950'
-                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
-                                    }">${rankLabels[idx]}</span>
-                                    <span class="text-[11px] font-mono font-extrabold text-emerald-700 dark:text-amber-300">يبعد ${formatDistanceArabic(m.dist)}</span>
-                                    <span class="text-[10px] text-slate-500 dark:text-slate-400">• ${walkMins} د مشياً</span>
-                                </div>
-                                <h4 class="text-sm font-extrabold text-slate-900 dark:text-white mt-1">🕌 ${m.name || 'مسجد قريب'}</h4>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-end pt-1">
-                        <a href="${mapUrl}" target="_blank" rel="noopener" class="w-full py-2 px-3 rounded-xl font-extrabold text-xs transition shadow-sm flex items-center justify-center gap-1.5 ${
-                            isFirst
-                                ? 'bg-amber-500 hover:bg-amber-400 text-slate-950'
-                                : 'bg-emerald-700 hover:bg-emerald-600 text-white'
-                        }">
-                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
-                            <span>الذهاب إلى ${m.name || 'المسجد'} (Google Maps)</span>
-                        </a>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        // Callback invoked directly by MainActivity.kt when Native Google Maps / Android Geocoder finishes finding mosques
-        window.onNativeMosquesFound = async function(nativeMosquesArray, userLat, userLng) {
-            if (!Array.isArray(nativeMosquesArray) || nativeMosquesArray.length === 0) return;
-            const combined = currentDiscoveredMosques.concat(nativeMosquesArray);
-            const sortedUnique = deduplicateAndSortMosques(combined, userLat, userLng);
-            if (sortedUnique.length > 0) {
-                currentDiscoveredMosques = sortedUnique;
-                const top3 = sortedUnique.slice(0, 3);
-                for (let i = 0; i < top3.length; i++) {
-                    if (!top3[i].name) {
-                        top3[i].name = await resolveMosqueNameIfUnnamed(top3[i].lat, top3[i].lng, i + 1);
-                    }
-                }
-                const badgeEl = document.getElementById('mosqueStatusBadge');
-                if (badgeEl) badgeEl.textContent = '✓ متصل بـ Google Maps و GPS';
-                const subEl = document.getElementById('nearestMosqueSubtext');
-                if (subEl) subEl.textContent = `أقرب ${top3.length} مساجد لموقعك الفعلي مرتبة بالمتر من الأقرب للأبعد:`;
-                renderTopThreeMosquesCards(top3, userLat, userLng);
-            }
-        };
-
-        // Callback invoked directly by MainActivity.kt when hardware GPS / Network location updates
-        window.onNativeGpsLocation = function(lat, lng) {
-            if (!lat || !lng || isNaN(lat) || isNaN(lng)) return;
-            applyDetectedUserCoordinates(lat, lng, false);
-        };
-
-        async function searchNearestMosquesByCoords(userLat, userLng, isExactGps) {
-            const subEl = document.getElementById('nearestMosqueSubtext');
-            const badgeEl = document.getElementById('mosqueStatusBadge');
-            const container = document.getElementById('topThreeMosquesContainer');
-
-            updateGoogleMapsIframeAndLink(userLat, userLng);
-
-            if (!container) return;
-            container.innerHTML = `
-                <div class="p-4 rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-emerald-200/60 dark:border-slate-700 text-center space-y-1">
-                    <p class="text-xs font-extrabold text-emerald-800 dark:text-emerald-300">جاري البحث في Google Maps والخرائط عن أقرب 3 مساجد لموقعك...</p>
-                    <p class="text-[11px] text-slate-500">يتم فحص جميع المساجد والمصليات المحيطة بك وترتيبها بالمتر</p>
-                </div>
-            `;
-
-            // 1. Trigger Native Android Google Maps + Google Geocoder search if running inside APK
-            if (window.AndroidBridge && window.AndroidBridge.requestNativeGoogleMapsMosques) {
-                try {
-                    window.AndroidBridge.requestNativeGoogleMapsMosques(userLat, userLng);
-                } catch (e) {}
-            }
-
-            try {
-                // 2. Simultaneously query Overpass, Photon, and Nominatim
-                const [overpassElements, photonList, nominatimList] = await Promise.all([
-                    fetchOverpassMosquesWithFailover(userLat, userLng),
-                    fetchPhotonNearbyMosques(userLat, userLng),
-                    fetchNominatimNearbyMosques(userLat, userLng)
-                ]);
-
-                const candidates = [];
-
-                overpassElements.forEach(el => {
-                    const mLat = el.lat || (el.center && el.center.lat);
-                    const mLng = el.lon || (el.center && el.center.lon);
-                    if (!mLat || !mLng) return;
-                    const tags = el.tags || {};
-                    if (tags.religion && tags.religion !== 'muslim') return;
-                    let rawName = tags['name:ar'] || tags.name || tags['official_name:ar'] || tags.official_name || tags['alt_name:ar'] || tags.alt_name || '';
-                    const hasExplicitName = !!rawName.trim();
-                    if (hasExplicitName && !rawName.includes('مسجد') && !rawName.includes('جامع') && !rawName.includes('مصلى')) {
-                        rawName = 'مسجد ' + rawName.trim();
-                    }
-                    candidates.push({
-                        name: hasExplicitName ? rawName.trim() : '',
-                        lat: mLat,
-                        lng: mLng
-                    });
-                });
-
-                photonList.forEach(pItem => candidates.push(pItem));
-                nominatimList.forEach(nItem => candidates.push(nItem));
-
-                const uniqueMosques = deduplicateAndSortMosques(currentDiscoveredMosques.concat(candidates), userLat, userLng);
-                currentDiscoveredMosques = uniqueMosques;
-
-                if (uniqueMosques.length > 0) {
-                    const top3 = uniqueMosques.slice(0, 3);
-                    for (let i = 0; i < top3.length; i++) {
-                        if (!top3[i].name) {
-                            top3[i].name = await resolveMosqueNameIfUnnamed(top3[i].lat, top3[i].lng, i + 1);
-                        }
-                    }
-
-                    if (badgeEl) {
-                        badgeEl.textContent = isExactGps ? '✓ حسب موقعك الدقيق (GPS)' : 'اضغط تحديث موقعي للدقة';
-                    }
-                    if (subEl) {
-                        subEl.textContent = `أقرب ${top3.length} مساجد لموقعك مرتبة من الأقرب للأبعد بالمتر:`;
-                    }
-                    renderTopThreeMosquesCards(top3, userLat, userLng);
+                    window.AndroidBridge.openNearestMosquesInGoogleMaps();
                     return;
-                }
-            } catch (err) {}
-        }
+                } catch (err) {}
+            }
+        });
 
         async function applyDetectedUserCoordinates(lat, lng, showSuccessToast) {
             prayerConfig.lat = lat;
@@ -2912,12 +2631,15 @@
                 }
             });
 
-            currentDiscoveredMosques = [];
-            await searchNearestMosquesByCoords(lat, lng, true);
             if (showSuccessToast) {
-                showToast(`تم تحديد موقعك الدقيق في ${prayerConfig.name} وجلب أقرب المساجد`);
+                showToast(`تم تحديث مواقيت الصلاة حسب موقعك في ${prayerConfig.name}`);
             }
         }
+
+        window.onNativeGpsLocation = function(lat, lng) {
+            if (!lat || !lng || isNaN(lat) || isNaN(lng)) return;
+            applyDetectedUserCoordinates(lat, lng, false);
+        };
 
         function triggerFindNearestMosque(silentIfDenied) {
             if (window.AndroidBridge) {
@@ -2940,13 +2662,10 @@
                 } catch (e) {}
             }
 
-            if (!navigator.geolocation) {
-                searchNearestMosquesByCoords(prayerConfig.lat, prayerConfig.lng, false);
-                return;
-            }
+            if (!navigator.geolocation) return;
 
             if (!silentIfDenied) {
-                showToast('جاري قراءة موقعك الدقيق (GPS) والبحث في Google Maps...');
+                showToast('جاري تحديد موقعك الحالي لتحديث مواقيت الصلاة...');
             }
 
             navigator.geolocation.getCurrentPosition(
@@ -2959,14 +2678,8 @@
                             applyDetectedUserCoordinates(pos2.coords.latitude, pos2.coords.longitude, !silentIfDenied);
                         },
                         () => {
-                            const lastReal = loadStorage('adhkar_last_real_gps_v1', null);
-                            if (lastReal && lastReal.lat && lastReal.lng) {
-                                applyDetectedUserCoordinates(lastReal.lat, lastReal.lng, false);
-                            } else {
-                                if (!silentIfDenied) {
-                                    showToast('يرجى السماح بإذن الموقع (GPS) لتحديد أقرب مسجد لشارعك بدقة');
-                                }
-                                searchNearestMosquesByCoords(prayerConfig.lat, prayerConfig.lng, false);
+                            if (!silentIfDenied) {
+                                showToast('تعذر جلب الموقع تلقائياً، يمكنك اختيار مدينتك من القائمة');
                             }
                         },
                         { enableHighAccuracy: false, maximumAge: 60000, timeout: 7000 }
@@ -2977,10 +2690,6 @@
         }
 
         document.getElementById('detectGpsBtn').addEventListener('click', () => {
-            triggerFindNearestMosque(false);
-        });
-
-        document.getElementById('findNearestMosqueBtn').addEventListener('click', () => {
             triggerFindNearestMosque(false);
         });
 
@@ -2998,13 +2707,12 @@
             prayerConfig.lng = savedRealGps.lng;
         }
         renderPrayerTimesView();
-        searchNearestMosquesByCoords(prayerConfig.lat, prayerConfig.lng, !!savedRealGps);
-        triggerFindNearestMosque(true);
         syncSettingsUI();
         syncWithNativeAndroid();
         renderAdhkar();
         renderTasbihPhrases();
         updateTasbihUI();
+        checkPendingNotificationCategory();
         startReminderTimer();
     </script>
 </body>
