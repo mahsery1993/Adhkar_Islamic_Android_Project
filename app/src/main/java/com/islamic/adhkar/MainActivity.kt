@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.location.Geocoder
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -27,16 +26,6 @@ import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import org.json.JSONArray
-import org.json.JSONObject
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
-import java.net.URLEncoder
-import java.util.Locale
-import java.util.regex.Pattern
-import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
 
@@ -44,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private var pendingGeoCallback: GeolocationPermissions.Callback? = null
     private var pendingGeoOrigin: String? = null
     private var latestDeviceLocation: Location? = null
+    private var pendingCategoryFromNotification: String? = null
 
     private val nativeLocationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
@@ -72,6 +62,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         NotificationHelper.createNotificationChannel(this)
+        extractTargetCategoryFromIntent(intent)
         requestNecessaryPermissionsOnStart()
 
         webView = findViewById(R.id.webView)
@@ -89,11 +80,8 @@ class MainActivity : AppCompatActivity() {
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                 if (url != null && (url.startsWith("https://www.google.com/maps") || url.startsWith("https://maps.google.com") || url.startsWith("geo:") || url.startsWith("intent:"))) {
-                    try {
-                        val mapIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                        startActivity(mapIntent)
-                        return true
-                    } catch (e: Exception) {}
+                    openGoogleMapsForNearestMosques()
+                    return true
                 }
                 return false
             }
@@ -101,6 +89,12 @@ class MainActivity : AppCompatActivity() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 startNativeHardwareLocationUpdates()
+                pendingCategoryFromNotification?.let { cat ->
+                    webView.evaluateJavascript(
+                        "if(window.openCategoryFromNotification){window.openCategoryFromNotification('$cat');}",
+                        null
+                    )
+                }
             }
         }
 
@@ -128,9 +122,69 @@ class MainActivity : AppCompatActivity() {
         }
 
         webView.addJavascriptInterface(AndroidBridge(this), "AndroidBridge")
-        webView.loadUrl("file:///android_asset/adhkar_islamic_app.html")
+
+        val startUrl = if (!pendingCategoryFromNotification.isNullOrEmpty()) {
+            "file:///android_asset/adhkar_islamic_app.html?cat=${pendingCategoryFromNotification}"
+        } else {
+            "file:///android_asset/adhkar_islamic_app.html"
+        }
+        webView.loadUrl(startUrl)
 
         ensureBackgroundReminderScheduled()
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        extractTargetCategoryFromIntent(intent)
+        pendingCategoryFromNotification?.let { cat ->
+            if (this::webView.isInitialized) {
+                webView.post {
+                    webView.evaluateJavascript(
+                        "if(window.openCategoryFromNotification){window.openCategoryFromNotification('$cat');}",
+                        null
+                    )
+                }
+            }
+        }
+    }
+
+    private fun extractTargetCategoryFromIntent(incomingIntent: Intent?) {
+        if (incomingIntent == null) return
+        val rawCat = incomingIntent.getStringExtra("target_category") ?: ""
+        val rawTitle = incomingIntent.getStringExtra("target_category_title") ?: ""
+        val resolved = when {
+            rawCat == "evening" || rawTitle.contains("المساء") -> "evening"
+            rawCat == "morning" || rawTitle.contains("الصباح") -> "morning"
+            rawCat == "prayer" || rawTitle.contains("الصلاة") -> "prayer"
+            rawCat == "sleep" || rawTitle.contains("النوم") -> "sleep"
+            rawCat == "ruqyah" || rawTitle.contains("الرقية") -> "ruqyah"
+            rawCat == "jawami" || rawTitle.contains("جوامع") -> "jawami"
+            rawCat.isNotEmpty() -> rawCat
+            else -> null
+        }
+        if (!resolved.isNullOrEmpty()) {
+            pendingCategoryFromNotification = resolved
+        }
+    }
+
+    private fun openGoogleMapsForNearestMosques() {
+        try {
+            // يفتح تطبيق خرائط Google مباشرة على موقع الهاتف الفعلي ويعرض أقرب المساجد
+            val gmmIntentUri = Uri.parse("geo:0,0?q=${Uri.encode("مسجد")}")
+            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
+                setPackage("com.google.android.apps.maps")
+            }
+            if (mapIntent.resolveActivity(packageManager) != null) {
+                startActivity(mapIntent)
+                return
+            }
+        } catch (e: Exception) {}
+
+        try {
+            val fallbackUri = Uri.parse("https://www.google.com/maps/search/?api=1&query=${Uri.encode("مسجد قريب مني")}")
+            startActivity(Intent(Intent.ACTION_VIEW, fallbackUri))
+        } catch (e: Exception) {}
     }
 
     private fun hasLocationPermission(): Boolean {
@@ -213,133 +267,6 @@ class MainActivity : AppCompatActivity() {
         DhikrAlarmReceiver.scheduleAllDailyAlarmsFromPrefs(this)
     }
 
-    // Searches Google Maps (tbm=map) + Android Google Geocoder for the TRUE closest mosques
-    private fun searchGoogleMapsAndGeocoderMosques(userLat: Double, userLng: Double) {
-        thread {
-            val results = mutableListOf<Triple<String, Double, Double>>()
-
-            // 1. Android Built-in Google Geocoder (queries Google Play Services Places/Geocoding backend directly)
-            try {
-                if (Geocoder.isPresent()) {
-                    val geocoder = Geocoder(this@MainActivity, Locale("ar"))
-                    val radii = listOf(0.008, 0.018, 0.03) // ~800m, ~1.8km, ~3km boxes
-                    val terms = listOf("مسجد", "جامع", "مصلى")
-                    for (r in radii) {
-                        for (term in terms) {
-                            try {
-                                @Suppress("DEPRECATION")
-                                val addresses = geocoder.getFromLocationName(
-                                    term,
-                                    15,
-                                    userLat - r,
-                                    userLng - r,
-                                    userLat + r,
-                                    userLng + r
-                                )
-                                if (addresses != null) {
-                                    for (addr in addresses) {
-                                        if (!addr.hasLatitude() || !addr.hasLongitude()) continue
-                                        val mLat = addr.latitude
-                                        val mLng = addr.longitude
-                                        val distArr = FloatArray(1)
-                                        Location.distanceBetween(userLat, userLng, mLat, mLng, distArr)
-                                        if (distArr[0] < 5f || distArr[0] > 8000f) continue
-
-                                        var name = addr.featureName ?: ""
-                                        val line0 = addr.getAddressLine(0) ?: ""
-                                        if (!name.contains("مسجد") && !name.contains("جامع") && !name.contains("مصلى")) {
-                                            val firstSeg = line0.split("،", ",")[0].trim()
-                                            if (firstSeg.isNotEmpty()) {
-                                                name = firstSeg
-                                            }
-                                        }
-                                        if (name.isNotEmpty() && !name.contains("مسجد") && !name.contains("جامع") && !name.contains("مصلى")) {
-                                            name = "مسجد $name"
-                                        }
-                                        if (name.isNotEmpty()) {
-                                            results.add(Triple(name, mLat, mLng))
-                                        }
-                                    }
-                                }
-                            } catch (e: Exception) {}
-                        }
-                        if (results.size >= 6) break
-                    }
-                }
-            } catch (e: Exception) {}
-
-            // 2. Direct Google Maps tbm=map JSON Search for "مسجد" and "جامع" around (userLat, userLng)
-            val searchQueries = listOf("مسجد", "جامع")
-            for (q in searchQueries) {
-                try {
-                    val encodedQ = URLEncoder.encode(q, "UTF-8")
-                    val urlStr = "https://www.google.com/search?tbm=map&authuser=0&hl=ar&gl=jo&q=$encodedQ&pb=!4m8!1m3!1d2200!2d$userLng!3d$userLat!3m2!1i1024!2i768!4f13.1"
-                    val conn = (URL(urlStr).openConnection() as HttpURLConnection).apply {
-                        requestMethod = "GET"
-                        connectTimeout = 6000
-                        readTimeout = 6000
-                        setRequestProperty(
-                            "User-Agent",
-                            "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36"
-                        )
-                        setRequestProperty("Accept-Language", "ar-JO,ar;q=0.9,en;q=0.8")
-                    }
-                    if (conn.responseCode == 200) {
-                        val reader = BufferedReader(InputStreamReader(conn.inputStream, Charsets.UTF_8))
-                        val body = reader.readText()
-                        reader.close()
-
-                        // Pattern 1: "Name" ... [null,null,lat,lng]
-                        val p1 = Pattern.compile("\"([^\"]*(?:مسجد|جامع|مصلى|Mosque|Masjid)[^\"]*)\"[\\s\\S]{1,350}?\\[null,null,(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)\\]")
-                        val m1 = p1.matcher(body)
-                        while (m1.find()) {
-                            val rawName = m1.group(1)?.trim() ?: continue
-                            val mLat = m1.group(2)?.toDoubleOrNull() ?: continue
-                            val mLng = m1.group(3)?.toDoubleOrNull() ?: continue
-                            val distArr = FloatArray(1)
-                            Location.distanceBetween(userLat, userLng, mLat, mLng, distArr)
-                            if (distArr[0] in 5f..8000f && rawName.length in 3..80) {
-                                results.add(Triple(rawName, mLat, mLng))
-                            }
-                        }
-
-                        // Pattern 2: [null,null,lat,lng] ... "Name"
-                        val p2 = Pattern.compile("\\[null,null,(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)\\][\\s\\S]{1,350}?\"([^\"]*(?:مسجد|جامع|مصلى|Mosque|Masjid)[^\"]*)\"")
-                        val m2 = p2.matcher(body)
-                        while (m2.find()) {
-                            val mLat = m2.group(1)?.toDoubleOrNull() ?: continue
-                            val mLng = m2.group(2)?.toDoubleOrNull() ?: continue
-                            val rawName = m2.group(3)?.trim() ?: continue
-                            val distArr = FloatArray(1)
-                            Location.distanceBetween(userLat, userLng, mLat, mLng, distArr)
-                            if (distArr[0] in 5f..8000f && rawName.length in 3..80) {
-                                results.add(Triple(rawName, mLat, mLng))
-                            }
-                        }
-                    }
-                } catch (e: Exception) {}
-            }
-
-            if (results.isNotEmpty() && this@MainActivity::webView.isInitialized) {
-                val jsonArray = JSONArray()
-                for (item in results) {
-                    val obj = JSONObject()
-                    obj.put("name", item.first)
-                    obj.put("lat", item.second)
-                    obj.put("lng", item.third)
-                    jsonArray.put(obj)
-                }
-                val jsonStr = jsonArray.toString()
-                webView.post {
-                    webView.evaluateJavascript(
-                        "if(window.onNativeMosquesFound){window.onNativeMosquesFound($jsonStr, $userLat, $userLng);}",
-                        null
-                    )
-                }
-            }
-        }
-    }
-
     inner class AndroidBridge(private val context: Context) {
 
         @JavascriptInterface
@@ -391,6 +318,20 @@ class MainActivity : AppCompatActivity() {
         }
 
         @JavascriptInterface
+        fun openNearestMosquesInGoogleMaps() {
+            runOnUiThread {
+                openGoogleMapsForNearestMosques()
+            }
+        }
+
+        @JavascriptInterface
+        fun consumePendingCategory(): String {
+            val cat = pendingCategoryFromNotification ?: ""
+            pendingCategoryFromNotification = null
+            return cat
+        }
+
+        @JavascriptInterface
         fun requestFreshLocationUpdate() {
             runOnUiThread {
                 if (hasLocationPermission()) {
@@ -406,11 +347,6 @@ class MainActivity : AppCompatActivity() {
                     )
                 }
             }
-        }
-
-        @JavascriptInterface
-        fun requestNativeGoogleMapsMosques(lat: Double, lng: Double) {
-            searchGoogleMapsAndGeocoderMosques(lat, lng)
         }
 
         @JavascriptInterface
@@ -454,7 +390,22 @@ class MainActivity : AppCompatActivity() {
 
         @JavascriptInterface
         fun triggerNativeNotification(categoryTitle: String, text: String, reward: String) {
-            val item = DhikrItem("custom", "custom", categoryTitle, text, 1, reward)
+            val resolvedCat = when {
+                categoryTitle.contains("المساء") -> "evening"
+                categoryTitle.contains("الصباح") -> "morning"
+                categoryTitle.contains("الصلاة") -> "prayer"
+                categoryTitle.contains("النوم") -> "sleep"
+                categoryTitle.contains("الرقية") -> "ruqyah"
+                categoryTitle.contains("جوامع") -> "jawami"
+                else -> "custom"
+            }
+            val item = DhikrItem("custom", resolvedCat, categoryTitle, text, 1, reward)
+            NotificationHelper.showDhikrPopupNotification(context, item)
+        }
+
+        @JavascriptInterface
+        fun triggerNativeNotificationWithCategory(category: String, categoryTitle: String, text: String, reward: String) {
+            val item = DhikrItem("custom", category, categoryTitle, text, 1, reward)
             NotificationHelper.showDhikrPopupNotification(context, item)
         }
 
