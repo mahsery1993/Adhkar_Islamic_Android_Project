@@ -410,6 +410,21 @@ class MainActivity : AppCompatActivity() {
         }
 
         @JavascriptInterface
+        fun shareApp(message: String) {
+            runOnUiThread {
+                try {
+                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_SUBJECT, "تطبيق زاد الذاكرين")
+                        putExtra(Intent.EXTRA_TEXT, message)
+                    }
+                    val chooser = Intent.createChooser(shareIntent, "مشاركة تطبيق زاد الذاكرين")
+                    startActivity(chooser)
+                } catch (e: Exception) {}
+            }
+        }
+
+        @JavascriptInterface
         fun requestBackgroundPermission() {
             requestNecessaryPermissionsOnStart()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
