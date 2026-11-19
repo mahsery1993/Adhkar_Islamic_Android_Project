@@ -343,6 +343,22 @@
                         <button id="requestSysNotifBtn" class="px-3 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold shrink-0">تفعيل الإذن</button>
                     </div>
                 </div>
+
+                <!-- Share App Card (مشاركة التطبيق) -->
+                <div class="bg-gradient-to-br from-emerald-50 to-amber-50/70 dark:from-emerald-950/60 dark:to-slate-800/80 rounded-2xl p-4 border border-emerald-200/80 dark:border-emerald-800/60 space-y-3">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-700 text-amber-300 flex items-center justify-center text-lg shrink-0 shadow-sm">🤝</div>
+                        <div class="flex-1">
+                            <h3 class="text-sm font-extrabold text-emerald-950 dark:text-emerald-100">شارك التطبيق واحتسب الأجر</h3>
+                            <p class="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">«الدال على الخير كفاعله» — شارك تطبيق زاد الذاكرين مع أهلك وأصدقائك ليستفيدوا من الأذكار ومواقيت الصلاة.</p>
+                        </div>
+                    </div>
+                    <button id="shareAppBtn" class="w-full py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-600 active:scale-[0.99] text-white text-xs font-extrabold transition shadow-sm flex items-center justify-center gap-2">
+                        <span>📤</span>
+                        <span>مشاركة التطبيق مع الآخرين</span>
+                    </button>
+                    <p id="shareFeedbackMsg" class="hidden text-[11px] text-center font-bold text-emerald-700 dark:text-emerald-300"></p>
+                </div>
             </section>
 
             <!-- VIEW 4: PRAYER TIMES (مواقيت الصلاة وأقرب 3 مساجد) -->
@@ -1807,6 +1823,10 @@
 
             const banner = document.getElementById('headsUpBanner');
             banner.classList.remove('hidden');
+            if (window._headsUpAutoHideTimer) clearTimeout(window._headsUpAutoHideTimer);
+            window._headsUpAutoHideTimer = setTimeout(() => {
+                banner.classList.add('hidden');
+            }, 12000);
 
             playChime('popup');
             if (navigator.vibrate) navigator.vibrate([100, 60, 100]);
@@ -2714,6 +2734,55 @@
         updateTasbihUI();
         checkPendingNotificationCategory();
         startReminderTimer();
+    
+        // ===== Share App Handler (مشاركة التطبيق) =====
+        (function setupShareAppButton() {
+            const shareBtn = document.getElementById('shareAppBtn');
+            const feedbackEl = document.getElementById('shareFeedbackMsg');
+            if (!shareBtn) return;
+
+            const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.islamic.adhkar';
+            const shareMessage =
+                'تطبيق زاد الذاكرين 🕌✨\n' +
+                'رفيقك اليومي لأذكار الصباح والمساء، مواقيت الصلاة، المسبحة الإلكترونية، ومنبه ذكي للذكر.\n\n' +
+                'حمّل التطبيق الآن وشارك الأجر:\n' +
+                playStoreUrl;
+
+            const showShareFeedback = (msg) => {
+                if (!feedbackEl) return;
+                feedbackEl.textContent = msg;
+                feedbackEl.classList.remove('hidden');
+                setTimeout(() => feedbackEl.classList.add('hidden'), 3500);
+            };
+
+            shareBtn.addEventListener('click', async () => {
+                if (window.AndroidBridge && typeof window.AndroidBridge.shareApp === 'function') {
+                    try {
+                        window.AndroidBridge.shareApp(shareMessage);
+                        return;
+                    } catch (e) {}
+                }
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: 'تطبيق زاد الذاكرين',
+                            text: shareMessage,
+                            url: playStoreUrl
+                        });
+                        return;
+                    } catch (e) {
+                        if (e && e.name === 'AbortError') return;
+                    }
+                }
+                try {
+                    await navigator.clipboard.writeText(shareMessage);
+                    showShareFeedback('✓ تم نسخ رابط التطبيق، يمكنك لصقه ومشاركته الآن');
+                } catch (e) {
+                    showShareFeedback(playStoreUrl);
+                }
+            });
+        })();
+
     </script>
 </body>
 </html>
