@@ -15,8 +15,10 @@ import android.os.Bundle
 import android.os.Looper
 import android.os.PowerManager
 import android.provider.Settings
+import android.view.Gravity
 import android.view.View
-import android.view.WindowManager
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.webkit.GeolocationPermissions
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
@@ -26,6 +28,9 @@ import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 
 class MainActivity : AppCompatActivity() {
 
@@ -50,22 +55,20 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.statusBarColor = Color.parseColor("#064E3B")
-            window.navigationBarColor = Color.parseColor("#FFFFFF")
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-            }
-        }
-
+        // تفعيل العرض Edge-to-Edge المتوافق مع Android 15 و Android 16 بدون أي دوال قديمة (Deprecated)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContentView(R.layout.activity_main)
+
+        val insetsController = WindowCompat.getInsetsController(window, window.decorView)
+        insetsController.isAppearanceLightStatusBars = false
+        insetsController.isAppearanceLightNavigationBars = true
 
         NotificationHelper.createNotificationChannel(this)
         extractTargetCategoryFromIntent(intent)
         requestNecessaryPermissionsOnStart()
 
         webView = findViewById(R.id.webView)
+        setupEdgeToEdgeInsets()
         webView.settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true
@@ -131,6 +134,36 @@ class MainActivity : AppCompatActivity() {
         webView.loadUrl(startUrl)
 
         ensureBackgroundReminderScheduled()
+    }
+
+    private fun setupEdgeToEdgeInsets() {
+        val rootParent = webView.parent as? ViewGroup ?: return
+        rootParent.setBackgroundColor(Color.WHITE)
+
+        val contentRoot = findViewById<FrameLayout>(android.R.id.content)
+        val statusBarScrim = View(this).apply {
+            setBackgroundColor(Color.parseColor("#064E3B"))
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                0,
+                Gravity.TOP
+            )
+        }
+        contentRoot.addView(statusBarScrim)
+
+        ViewCompat.setOnApplyWindowInsetsListener(rootParent) { view, windowInsets ->
+            val systemBars = windowInsets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            val lp = statusBarScrim.layoutParams
+            if (lp.height != systemBars.top) {
+                lp.height = systemBars.top
+                statusBarScrim.layoutParams = lp
+            }
+            windowInsets
+        }
+        ViewCompat.requestApplyInsets(rootParent)
     }
 
     override fun onNewIntent(intent: Intent?) {
