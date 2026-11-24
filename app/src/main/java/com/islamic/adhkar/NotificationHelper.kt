@@ -16,7 +16,7 @@ object NotificationHelper {
 
     private const val CHANNEL_ID = "zad_aldhakireen_popup_v3"
     private const val CHANNEL_NAME = "الإشعارات المنبثقة للأذكار"
-    private const val AUTO_DISMISS_MS = 12_000L // يختفي الإشعار تلقائياً بعد 12 ثانية
+    private const val AUTO_DISMISS_MS = 12_000L // باقي الإشعارات الدورية تختفي تلقائياً بعد 12 ثانية
 
     fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -31,7 +31,7 @@ object NotificationHelper {
                 CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "إشعارات منبثقة أعلى الشاشة لأذكار الصباح والمساء والتذكير الدوري وتختفي تلقائياً"
+                description = "إشعارات منبثقة أعلى الشاشة لأذكار الصباح والمساء والتذكير الدوري"
                 enableVibration(true)
                 vibrationPattern = longArrayOf(0L, 180L, 80L, 180L)
                 setSound(soundUri, audioAttributes)
@@ -56,6 +56,11 @@ object NotificationHelper {
             dhikr.category == "jawami" || dhikr.categoryTitle.contains("جوامع") -> "jawami"
             else -> dhikr.category
         }
+
+        // منبه تذكير أذكار الصباح والمساء يستمر بالظهور حتى يمسحه المستخدم أو يضغط عليه
+        val isMorningEveningReminder =
+            dhikr.categoryTitle.contains("تذكير أذكار الصباح") ||
+            dhikr.categoryTitle.contains("تذكير أذكار المساء")
 
         val tapIntent = Intent(context, MainActivity::class.java).apply {
             action = "com.islamic.adhkar.OPEN_CATEGORY_$resolvedCategory"
@@ -88,16 +93,20 @@ object NotificationHelper {
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setSound(soundUri)
             .setVibrate(longArrayOf(0L, 180L, 80L, 180L))
-            .setTimeoutAfter(AUTO_DISMISS_MS)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
+
+        // تطبيق الإخفاء التلقائي (12 ثانية) فقط على باقي الإشعارات الدورية، واستثناء منبه أذكار الصباح والمساء
+        if (!isMorningEveningReminder) {
+            builder.setTimeoutAfter(AUTO_DISMISS_MS)
+        }
 
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notificationId = (System.currentTimeMillis() % 10000).toInt()
         manager.notify(notificationId, builder.build())
 
-        // احتياطي للأجهزة الأقدم (Android 7.1 وأقل) لإخفاء الإشعار تلقائياً بعد انتهاء المدة
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+        // احتياطي للأجهزة الأقدم (Android 7.1 وأقل) لباقي الإشعارات الدورية فقط
+        if (!isMorningEveningReminder && Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             Handler(Looper.getMainLooper()).postDelayed({
                 try {
                     manager.cancel(notificationId)
