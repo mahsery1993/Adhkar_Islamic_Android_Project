@@ -1824,9 +1824,11 @@
             const banner = document.getElementById('headsUpBanner');
             banner.classList.remove('hidden');
             if (window._headsUpAutoHideTimer) clearTimeout(window._headsUpAutoHideTimer);
-            window._headsUpAutoHideTimer = setTimeout(() => {
-                banner.classList.add('hidden');
-            }, 12000);
+            if (!item.isMorningEveningReminder) {
+                window._headsUpAutoHideTimer = setTimeout(() => {
+                    banner.classList.add('hidden');
+                }, 12000);
+            }
 
             playChime('popup');
             if (navigator.vibrate) navigator.vibrate([100, 60, 100]);
